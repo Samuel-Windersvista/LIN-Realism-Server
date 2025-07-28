@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Main = void 0;
 const ConfigTypes_1 = require("C:/snapshot/project/obj/models/enums/ConfigTypes");
@@ -38,7 +48,6 @@ const meds_1 = require("./items/meds");
 const player_1 = require("./player/player");
 const weapons_globals_1 = require("./weapons/weapons_globals");
 const bots_1 = require("./bots/bots");
-const bot_gen_1 = require("./bots/bot_gen");
 const items_1 = require("./items/items");
 const json_gen_1 = require("./json/json_gen");
 const quests_1 = require("./traders/quests");
@@ -170,27 +179,32 @@ class Main {
                 }
             }
         ], "RealismMod");
-        if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
-            const botLevelGenerator = container.resolve("BotLevelGenerator");
-            const botInventoryGenerator = container.resolve("BotInventoryGenerator");
-            const botHelper = container.resolve("BotHelper");
-            const botEquipmentFilterService = container.resolve("BotEquipmentFilterService");
-            const seasonalEventService = container.resolve("SeasonalEventService");
-            const botGeneratorHelper = container.resolve("BotGeneratorHelper");
-            const botNameService = container.resolve("BotNameService");
-            const itemFilterService = container.resolve("ItemFilterService");
-            const botGen = new bot_gen_1.BotGen(logger, hashUtil, randomUtil, timeUtil, profileHelper, databaseService, botInventoryGenerator, botLevelGenerator, botEquipmentFilterService, weightedRandomHelper, botHelper, botGeneratorHelper, seasonalEventService, itemFilterService, botNameService, configServer, cloner);
-            container.afterResolution("BotGenerator", (_t, result) => {
-                result.prepareAndGenerateBot = (sessionId, botGenerationDetails) => {
-                    return botGen.myPrepareAndGenerateBot(sessionId, botGenerationDetails);
-                };
-            }, { frequency: "Always" });
-            container.afterResolution("BotGenerator", (_t, result) => {
-                result.generatePlayerScav = (sessionId, role, difficulty, botTemplate) => {
-                    return botGen.myGeneratePlayerScav(sessionId, role, difficulty, botTemplate);
-                };
-            }, { frequency: "Always" });
-        }
+        // if (modConfig.bot_changes == true && ModTracker.alpPresent == false) {
+        //     const botLevelGenerator = container.resolve<BotLevelGenerator>("BotLevelGenerator");
+        //     const botInventoryGenerator = container.resolve<BotInventoryGenerator>("BotInventoryGenerator");
+        //     const botHelper = container.resolve<BotHelper>("BotHelper");
+        //     const botEquipmentFilterService = container.resolve<BotEquipmentFilterService>("BotEquipmentFilterService");
+        //     const seasonalEventService = container.resolve<SeasonalEventService>("SeasonalEventService");
+        //     const botGeneratorHelper = container.resolve<BotGeneratorHelper>("BotGeneratorHelper");
+        //     const botNameService = container.resolve<BotNameService>("BotNameService");
+        //     const itemFilterService = container.resolve<ItemFilterService>("ItemFilterService");
+        //     const botGen = new BotGen(
+        //         logger, hashUtil, randomUtil, timeUtil,
+        //         profileHelper, databaseService, botInventoryGenerator,
+        //         botLevelGenerator, botEquipmentFilterService, weightedRandomHelper,
+        //         botHelper, botGeneratorHelper, seasonalEventService,
+        //         itemFilterService, botNameService, configServer, cloner);
+        //     container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
+        //         result.prepareAndGenerateBot = (sessionId: string, botGenerationDetails: IBotGenerationDetails): IBotBase => {
+        //             return botGen.myPrepareAndGenerateBot(sessionId, botGenerationDetails);
+        //         }
+        //     }, { frequency: "Always" });
+        //     container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
+        //         result.generatePlayerScav = (sessionId: string, role: string, difficulty: string, botTemplate: IBotType): IBotBase => {
+        //             return botGen.myGeneratePlayerScav(sessionId, role, difficulty, botTemplate);
+        //         }
+        //     }, { frequency: "Always" });
+        // }
         container.afterResolution("TraderAssortHelper", (_t, result) => {
             result.resetExpiredTrader = (trader) => {
                 return traderRefersh.myResetExpiredTrader(trader);
@@ -392,18 +406,20 @@ class Main {
                         if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
                             botLoader.updateBots(pmcData, logger, modConfig, botLoader, utils);
                         }
-                        if (!utils_1.ModTracker.swagPresent && !utils_1.ModTracker.qtbSpawnsActive) {
-                            pmcConf.convertIntoPmcChance.laboratory = {
-                                "assault": {
-                                    "min": 100,
-                                    "max": 100
-                                },
-                                "pmcbot": {
-                                    "min": 0,
-                                    "max": 0
-                                }
-                            };
-                        }
+                        // if (!ModTracker.swagPresent && !ModTracker.qtbSpawnsActive) {
+                        //     pmcConf.convertIntoPmcChance.laboratory = {
+                        //         "assault":
+                        //         {
+                        //             "min": 100,
+                        //             "max": 100
+                        //         },
+                        //         "pmcbot":
+                        //         {
+                        //             "min": 0,
+                        //             "max": 0
+                        //         }
+                        //     };
+                        // }
                         logger.warning("Avg. Player Level = " + utils_1.ProfileTracker.averagePlayerLevel);
                         logger.warning("Map Name = " + matchInfo.location);
                         logger.warning("Map Type  = " + mapType);
@@ -552,11 +568,10 @@ class Main {
         const statHandler = json_handler_1.ItemStatHandler.getInstance(tables, logger, hashUtil);
         const descGen = new description_gen_1.DescriptionGen(tables, modConfig, logger, statHandler);
         //Remember to back up json data before using this, and make sure it isn't overriding existing json objects
-        // jsonGen.attTemplatesCodeGen();
-        // jsonGen.weapTemplatesCodeGen();
-        // jsonGen.gearTemplatesCodeGen();
-        // jsonGen.ammoTemplatesCodeGen();
-        // jsonGen.genArmorMods();
+        //jsonGen.attTemplatesCodeGen();
+        //jsonGen.weapTemplatesCodeGen();
+        //jsonGen.gearTemplatesCodeGen();
+        //jsonGen.ammoTemplatesCodeGen();
         this.checkForSeasonalEvents(logger, seasonalEventsService, seeasonalEventConfig, weatherConfig, true);
         if (modConfig.enable_hazard_zones) {
             quests.loadHazardQuests();

@@ -1817,6 +1817,22 @@
         "Weight": 0.27,
         "LoyaltyLevel": 1
     },
+    "676017fe8cfeeba9f707c8d6": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "676017fe8cfeeba9f707c8d6",
+        "Name": "reciever_saiga12_izhmash_fa_zombie_custom",
+        "ModType": "",
+        "ModMalfunctionChance": -5,
+        "Accuracy": -5,
+        "HeatFactor": 1,
+        "CoolFactor": 1,
+        "DurabilityBurnModificator": 0.95,
+        "ConflictingItems": [],
+        "Ergonomics": 0,
+        "Weight": 0.12,
+        "MalfChance": 0,
+        "LoyaltyLevel": 3
+    },
     "655cb6b5d680a544f30607fa": {
         "$type": "RealismMod.WeaponMod, RealismMod",
         "ItemID": "655cb6b5d680a544f30607fa",
@@ -1883,5 +1899,20 @@
         "Weight": 0.7,
         "MalfChance": 0,
         "LoyaltyLevel": 3
+    },
+    "673cb491280680de5e02ff36": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "673cb491280680de5e02ff36",
+        "Name": "reciever_trg_sako_trg_m10_std",
+        "ModType": "",
+        "ModMalfunctionChance": 0,
+        "Accuracy": 0,
+        "HeatFactor": 0.989,
+        "CoolFactor": 1.01,
+        "DurabilityBurnModificator": 1,
+        "ConflictingItems": [],
+        "Ergonomics": 0,
+        "Weight": 0.54,
+        "MalfChance": 0
     }
 }

@@ -479,8 +479,19 @@ class Armor {
             serverItem._props.mousePenalty = 0;
             serverItem._props.weaponErgonomicPenalty = -2;
         }
+        //PRCTR
+        if (serverItem._id === "656fac30c6baea13cd07e10c") {
+            serverItem._props.Durability = 110;
+            serverItem._props.MaxDurability = serverItem._props.Durability;
+            serverItem._props.armorClass = 6;
+            serverItem._props.BluntThroughput = 0.2;
+            serverItem._props.ArmorMaterial = 'UHMWPE';
+            serverItem._props.speedPenaltyPercent = -1;
+            serverItem._props.mousePenalty = 0;
+            serverItem._props.weaponErgonomicPenalty = -2.5;
+        }
         //UHMWPE NIJ III
-        if (serverItem._id === "656fae5f7c2d57afe200c0d7" || serverItem._id === "656fac30c6baea13cd07e10c") {
+        if (serverItem._id === "656fae5f7c2d57afe200c0d7") {
             serverItem._props.Durability = 125;
             serverItem._props.MaxDurability = serverItem._props.Durability;
             serverItem._props.armorClass = 7;

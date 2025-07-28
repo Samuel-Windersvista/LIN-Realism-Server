@@ -1214,7 +1214,7 @@
         "ItemID": "57c5ac0824597754771e88a9",
         "Name": "scope_30mm_march_tactical_3-24x42",
         "ModType": "sight",
-        "AimSpeed": -43,
+        "AimSpeed": -40,
         "Accuracy": 24,
         "ConflictingItems": [
             "591c4efa86f7741030027726",
@@ -1237,6 +1237,37 @@
         "Weight": 0.64,
         "VerticalRecoil": 0,
         "HorizontalRecoil": 0,
+        "LoyaltyLevel": 4
+    },
+    "676175789dcee773150c6925": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "676175789dcee773150c6925",
+        "Name": "scope_35mm_leupold_mark_5hd_5_25x56_fde",
+        "ModType": "",
+        "AimSpeed": -43,
+        "Accuracy": 28,
+        "ConflictingItems": [
+            "591c4efa86f7741030027726",
+            "570fd79bd2720bc7458b4583",
+            "64785e7c19d732620e045e15",
+            "570fd6c2d2720bc6458b457f",
+            "558022b54bdc2dac148b458d",
+            "58491f3324597764bc48fa02",
+            "584924ec24597768f12ae244",
+            "5b30b0dc5acfc400153b7124",
+            "6165ac8c290d254f5e6b2f6c",
+            "60a23797a37c940de7062d02",
+            "6477772ea8a38bb2050ed4db",
+            "5d2da1e948f035477b1ce2ba",
+            "5c0505e00db834001b735073",
+            "609a63b6e2ff132951242d09",
+            "584984812459776a704a82a6",
+            "59f9d81586f7744c7506ee62",
+            "570fd721d2720bc5458b4596",
+            "5c7d55f52e221644f31bff6a"
+        ],
+        "Ergonomics": -10,
+        "Weight": 0.85,
         "LoyaltyLevel": 4
     },
     "62850c28da09541f43158cca": {
@@ -1551,6 +1582,18 @@
         ],
         "Ergonomics": 0,
         "Weight": 0.626,
+        "LoyaltyLevel": 4
+    },
+    "67641b461c2eb66ade05dba6": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "67641b461c2eb66ade05dba6",
+        "Name": "scope_base_ciklon_shakhin_37x",
+        "ModType": "",
+        "AimSpeed": -10,
+        "Accuracy": -5,
+        "ConflictingItems": [],
+        "Ergonomics": 0,
+        "Weight": 1.014,
         "LoyaltyLevel": 4
     }
 }

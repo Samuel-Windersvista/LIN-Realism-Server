@@ -36,7 +36,7 @@
         "effects_health": {}
     },
     "milk": {
-        "StimulatorBuffs": "Buffs_drink_milk",
+        "StimulatorBuffs": "Buffs_drink_malk",
         "effects_health": {}
     },
     "moonshine": {

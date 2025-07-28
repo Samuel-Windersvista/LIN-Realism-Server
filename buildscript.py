@@ -3,10 +3,10 @@ import shutil
 import zipfile
 
 # Paths
-SOURCE_DIR = "F:/SP EFT/SPT-310/user/mods/zSPT-Realism-Mod-Dev"  # Change to your dev folder
-BUILD_DIR = "F:/SP EFT/SPT-310/user/mods/zSPT-Realism-Mod-Dev/Build"   # Change to your build folder
-PLUGINS_DIR = "F:/SP EFT/SPT-310/BepInEx/plugins"  # Additional source directory
-ZIP_NAME = "Realism-Mod-1.5.3-SPT-3.10.5.zip"  # Name of the final package
+SOURCE_DIR = "F:/SP EFT/SPT-311/user/mods/zSPT-Realism-Mod-Dev"  # Change to your dev folder
+BUILD_DIR = "F:/SP EFT/SPT-311/user/mods/zSPT-Realism-Mod-Dev/Build"   # Change to your build folder
+PLUGINS_DIR = "F:/SP EFT/SPT-311/BepInEx/plugins"  # Additional source directory
+ZIP_NAME = "Realism-Mod-1.6.0-SPT-3.11.0.zip"  # Name of the final package
 MOD_SUBFOLDER = "user/mods/SPT-Realism"
 
 # Rules

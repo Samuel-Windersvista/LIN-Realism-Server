@@ -273,36 +273,36 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             "RealismMod"
         );
 
-        if (modConfig.bot_changes == true && ModTracker.alpPresent == false) {
-            const botLevelGenerator = container.resolve<BotLevelGenerator>("BotLevelGenerator");
-            const botInventoryGenerator = container.resolve<BotInventoryGenerator>("BotInventoryGenerator");
-            const botHelper = container.resolve<BotHelper>("BotHelper");
-            const botEquipmentFilterService = container.resolve<BotEquipmentFilterService>("BotEquipmentFilterService");
-            const seasonalEventService = container.resolve<SeasonalEventService>("SeasonalEventService");
-            const botGeneratorHelper = container.resolve<BotGeneratorHelper>("BotGeneratorHelper");
-            const botNameService = container.resolve<BotNameService>("BotNameService");
-            const itemFilterService = container.resolve<ItemFilterService>("ItemFilterService");
+        // if (modConfig.bot_changes == true && ModTracker.alpPresent == false) {
+        //     const botLevelGenerator = container.resolve<BotLevelGenerator>("BotLevelGenerator");
+        //     const botInventoryGenerator = container.resolve<BotInventoryGenerator>("BotInventoryGenerator");
+        //     const botHelper = container.resolve<BotHelper>("BotHelper");
+        //     const botEquipmentFilterService = container.resolve<BotEquipmentFilterService>("BotEquipmentFilterService");
+        //     const seasonalEventService = container.resolve<SeasonalEventService>("SeasonalEventService");
+        //     const botGeneratorHelper = container.resolve<BotGeneratorHelper>("BotGeneratorHelper");
+        //     const botNameService = container.resolve<BotNameService>("BotNameService");
+        //     const itemFilterService = container.resolve<ItemFilterService>("ItemFilterService");
 
-            const botGen = new BotGen(
-                logger, hashUtil, randomUtil, timeUtil,
-                profileHelper, databaseService, botInventoryGenerator,
-                botLevelGenerator, botEquipmentFilterService, weightedRandomHelper,
-                botHelper, botGeneratorHelper, seasonalEventService,
-                itemFilterService, botNameService, configServer, cloner);
+        //     const botGen = new BotGen(
+        //         logger, hashUtil, randomUtil, timeUtil,
+        //         profileHelper, databaseService, botInventoryGenerator,
+        //         botLevelGenerator, botEquipmentFilterService, weightedRandomHelper,
+        //         botHelper, botGeneratorHelper, seasonalEventService,
+        //         itemFilterService, botNameService, configServer, cloner);
 
 
-            container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
-                result.prepareAndGenerateBot = (sessionId: string, botGenerationDetails: IBotGenerationDetails): IBotBase => {
-                    return botGen.myPrepareAndGenerateBot(sessionId, botGenerationDetails);
-                }
-            }, { frequency: "Always" });
+        //     container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
+        //         result.prepareAndGenerateBot = (sessionId: string, botGenerationDetails: IBotGenerationDetails): IBotBase => {
+        //             return botGen.myPrepareAndGenerateBot(sessionId, botGenerationDetails);
+        //         }
+        //     }, { frequency: "Always" });
 
-            container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
-                result.generatePlayerScav = (sessionId: string, role: string, difficulty: string, botTemplate: IBotType): IBotBase => {
-                    return botGen.myGeneratePlayerScav(sessionId, role, difficulty, botTemplate);
-                }
-            }, { frequency: "Always" });
-        }
+        //     container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
+        //         result.generatePlayerScav = (sessionId: string, role: string, difficulty: string, botTemplate: IBotType): IBotBase => {
+        //             return botGen.myGeneratePlayerScav(sessionId, role, difficulty, botTemplate);
+        //         }
+        //     }, { frequency: "Always" });
+        // }
 
         container.afterResolution("TraderAssortHelper", (_t, result: TraderAssortHelper) => {
             result.resetExpiredTrader = (trader: ITrader): void => {
@@ -552,21 +552,21 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                                 botLoader.updateBots(pmcData, logger, modConfig, botLoader, utils);
                             }
 
-                            if (!ModTracker.swagPresent && !ModTracker.qtbSpawnsActive) {
-                                pmcConf.convertIntoPmcChance.laboratory = {
-                                    "assault":
-                                    {
-                                        "min": 100,
-                                        "max": 100
-                                    },
-                                    "pmcbot":
-                                    {
-                                        "min": 0,
-                                        "max": 0
-                                    }
+                            // if (!ModTracker.swagPresent && !ModTracker.qtbSpawnsActive) {
+                            //     pmcConf.convertIntoPmcChance.laboratory = {
+                            //         "assault":
+                            //         {
+                            //             "min": 100,
+                            //             "max": 100
+                            //         },
+                            //         "pmcbot":
+                            //         {
+                            //             "min": 0,
+                            //             "max": 0
+                            //         }
 
-                                };
-                            }
+                            //     };
+                            // }
 
                             logger.warning("Avg. Player Level = " + ProfileTracker.averagePlayerLevel);
                             logger.warning("Map Name = " + matchInfo.location);
@@ -740,11 +740,10 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
         const descGen = new DescriptionGen(tables, modConfig, logger, statHandler);
 
         //Remember to back up json data before using this, and make sure it isn't overriding existing json objects
-        // jsonGen.attTemplatesCodeGen();
-        // jsonGen.weapTemplatesCodeGen();
-        // jsonGen.gearTemplatesCodeGen();
-        // jsonGen.ammoTemplatesCodeGen();
-        // jsonGen.genArmorMods();
+        //jsonGen.attTemplatesCodeGen();
+        //jsonGen.weapTemplatesCodeGen();
+        //jsonGen.gearTemplatesCodeGen();
+        //jsonGen.ammoTemplatesCodeGen();
 
         this.checkForSeasonalEvents(logger, seasonalEventsService, seeasonalEventConfig, weatherConfig, true);
 

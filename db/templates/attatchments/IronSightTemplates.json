@@ -1761,5 +1761,29 @@
         "Ergonomics": 0,
         "Weight": 0.025,
         "LoyaltyLevel": 1
+    },
+    "674fe8cf4472d471fb0f07df": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "674fe8cf4472d471fb0f07df",
+        "Name": "sight_rear_all_chaos_hk_style_sight",
+        "ModType": "",
+        "AimSpeed": 0,
+        "Accuracy": 0,
+        "ConflictingItems": [
+            "5b3b99265acfc4704b4a1afb"
+        ],
+        "Ergonomics": 0.5,
+        "Weight": 0.14
+    },
+    "674fe8dd362ea1f88b0e2792": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "674fe8dd362ea1f88b0e2792",
+        "Name": "sight_front_all_chaos_hk_style_sight",
+        "ModType": "",
+        "AimSpeed": 0,
+        "Accuracy": 0,
+        "ConflictingItems": [],
+        "Ergonomics": 0.5,
+        "Weight": 0.007
     }
 }

@@ -966,5 +966,19 @@
         "AimStability": 10.5,
         "Handling": 4.5,
         "LoyaltyLevel": 3
+    },
+    "673cb81f5b1511adb10cd326": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "673cb81f5b1511adb10cd326",
+        "Name": "foregrip_trg_sako_m10_base_pad",
+        "ModType": "",
+        "VerticalRecoil": 0,
+        "HorizontalRecoil": 0,
+        "Dispersion": 0,
+        "AimSpeed": 0,
+        "Ergonomics": 6,
+        "Accuracy": 0,
+        "ConflictingItems": [],
+        "Weight": 0.105
     }
 }
