@@ -3908,5 +3908,28 @@
         "CoolFactor": 1.03,
         "ConflictingItems": [],
         "Weight": 0.305
+    },
+    "686ea1787aaea0639d6587b4": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "686ea1787aaea0639d6587b4",
+        "Name": "AK-50 M-LOK",
+        "ModType": "",
+        "VerticalRecoil": 0,
+        "HorizontalRecoil": 0,
+        "Dispersion": 0,
+        "AutoROF": 0,
+        "SemiROF": 0,
+        "ModMalfunctionChance": 0,
+        "CanCycleSubs": false,
+        "Accuracy": 0,
+        "HeatFactor": 0.995,
+        "CoolFactor": 1.004,
+        "DurabilityBurnModificator": 1,
+        "ConflictingItems": [],
+        "Ergonomics": 12,
+        "Weight": 1,
+        "MalfChance": 0,
+        "Flash": 0,
+        "LoyaltyLevel": 5
     }
 }

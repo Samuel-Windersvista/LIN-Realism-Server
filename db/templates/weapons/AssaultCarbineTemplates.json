@@ -402,7 +402,7 @@
         "BaseChamberCheckSpeed": 1.45,
         "BaseFixSpeed": 1.17,
         "OffsetRotation": 0.008,
-        "RecoilIntensity": 0.165
+        "RecoilIntensity": 0.175
     },
     "5d43021ca4b9362eab4b5e25": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -449,7 +449,7 @@
         "BaseChamberCheckSpeed": 1.55,
         "BaseFixSpeed": 1.25,
         "OffsetRotation": 0.008,
-        "RecoilIntensity": 0.165
+        "RecoilIntensity": 0.175
     },
     "59e6152586f77473dc057aa1": {
         "$type": "RealismMod.Gun, RealismMod",

@@ -3032,7 +3032,7 @@
         "ItemID": "674fe8b9362ea1f88b0e278d",
         "Name": "mount_saiga12_chaos_titan_top_cover",
         "ModType": "",
-        "Ergonomics": -1,
+        "Ergonomics": 0,
         "Accuracy": 0,
         "ConflictingItems": [
             "5947db3f86f77447880cf76f",
@@ -3060,7 +3060,7 @@
         "ItemID": "6761759e7ee06333f108bf86",
         "Name": "mount_all_leupold_ims_35mm",
         "ModType": "",
-        "Ergonomics": -1,
+        "Ergonomics": 0,
         "Accuracy": 0,
         "ConflictingItems": [],
         "Weight": 0.17
@@ -3070,7 +3070,7 @@
         "ItemID": "676175bb48fa5c377e06fc36",
         "Name": "mount_all_kac_mws_bipod_adapter",
         "ModType": "",
-        "Ergonomics": -1,
+        "Ergonomics": 0,
         "Accuracy": 0,
         "ConflictingItems": [],
         "Weight": 0.042
@@ -3080,7 +3080,7 @@
         "ItemID": "676177591f08ed5e8800b7a9",
         "Name": "mount_rfb_kel_tec_rfb_3_quad_rail",
         "ModType": "",
-        "Ergonomics": -1,
+        "Ergonomics": 0,
         "Accuracy": 0,
         "ConflictingItems": [],
         "Weight": 0.11
@@ -3102,7 +3102,7 @@
         "ItemID": "67641a851b2899700609901a",
         "Name": "mount_all_ciklon_shakhin_std",
         "ModType": "",
-        "Ergonomics": -1,
+        "Ergonomics": 0,
         "Accuracy": 0,
         "ConflictingItems": [
             "55d5f46a4bdc2d1b198b4567",

@@ -1098,6 +1098,24 @@
         "ChamberSpeed": 0,
         "LoyaltyLevel": 1
     },
+        "686ea301341c74a9d8f5dfde": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "686ea301341c74a9d8f5dfde",
+        "Name": "reciever_ak50_theakguy",
+        "ModType": "",
+        "ModMalfunctionChance": -5,
+        "Accuracy": 0,
+        "HeatFactor": 1,
+        "CoolFactor": 1,
+        "DurabilityBurnModificator": 0.95,
+        "ConflictingItems": [],
+        "Ergonomics": 0,
+        "Weight": 0.088,
+        "VerticalRecoil": 0,
+        "HorizontalRecoil": 0,
+        "ChamberSpeed": 0,
+        "LoyaltyLevel": 1
+    },
     "59e6449086f7746c9f75e822": {
         "$type": "RealismMod.WeaponMod, RealismMod",
         "ItemID": "59e6449086f7746c9f75e822",
@@ -1898,7 +1916,8 @@
         "Ergonomics": 0,
         "Weight": 0.7,
         "MalfChance": 0,
-        "LoyaltyLevel": 3
+        "LoyaltyLevel": 3,
+        "Flash": -15
     },
     "673cb491280680de5e02ff36": {
         "$type": "RealismMod.WeaponMod, RealismMod",

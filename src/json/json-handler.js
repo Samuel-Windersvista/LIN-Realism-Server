@@ -228,6 +228,8 @@ class ItemStatHandler {
                 fileItem = this.modifiedItems[fileItem.TemplateID]; //if it's a reskin, need the realism specific stats of the item the skin is based on
             }
             this.modifiedItems[fileItem.ItemID] = fileItem; //store the item in an object to be used later for reskins
+            if (serverItem._parent == enums_1.ParentClasses.MAGAZINE)
+                serverItem._props.DropSoundType = "SubMachineGun";
             serverItem._props.Ergonomics = fileItem.Ergonomics != null ? fileItem.Ergonomics : 0;
             serverItem._props.Accuracy = fileItem.Accuracy != null ? fileItem.Accuracy : 0;
             serverItem._props.CenterOfImpact = fileItem.CenterOfImpact != null ? fileItem.CenterOfImpact : 0.05;

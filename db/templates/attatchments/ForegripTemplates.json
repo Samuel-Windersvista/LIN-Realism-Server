@@ -976,9 +976,11 @@
         "HorizontalRecoil": 0,
         "Dispersion": 0,
         "AimSpeed": 0,
-        "Ergonomics": 6,
+        "Ergonomics": 10,
+        "Handling": 12,
         "Accuracy": 0,
         "ConflictingItems": [],
-        "Weight": 0.105
+        "Weight": 0.105,
+        "LoyaltyLevel": 4
     }
 }

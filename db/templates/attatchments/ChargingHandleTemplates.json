@@ -378,9 +378,22 @@
         "VerticalRecoil": 0,
         "HorizontalRecoil": 0,
         "CameraRecoil": 0,
-        "ChamberSpeed": 37,
+        "ChamberSpeed": 35,
         "LoyaltyLevel": 4,
         "Flash": -20
+    },
+    "6761492dc53ebe8c0f0a5efe": {
+        "$type": "RealismMod.WeaponMod, RealismMod",
+        "ItemID": "6761492dc53ebe8c0f0a5efe",
+        "Name": "charge_mpx_sig_mpx_double_latch_gen2",
+        "ModType": "",
+        "ReloadSpeed": 0,
+        "ConflictingItems": [],
+        "FixSpeed": 0,
+        "Ergonomics": 0,
+        "Weight": 0.029,
+        "ChamberSpeed": 37,
+        "LoyaltyLevel": 3
     },
     "58949edd86f77409483e16a9": {
         "$type": "RealismMod.WeaponMod, RealismMod",
@@ -513,7 +526,7 @@
             "5e023e88277cce2b522ff2b1"
         ],
         "FixSpeed": 0,
-        "Ergonomics": -2,
+        "Ergonomics": 0,
         "Weight": 0.45,
         "ChamberSpeed": 0
     },
@@ -529,20 +542,8 @@
             "59bfe68886f7746004266202"
         ],
         "FixSpeed": 0,
-        "Ergonomics": 2,
+        "Ergonomics": 0,
         "Weight": 0.03,
-        "ChamberSpeed": 0
-    },
-    "6761492dc53ebe8c0f0a5efe": {
-        "$type": "RealismMod.WeaponMod, RealismMod",
-        "ItemID": "6761492dc53ebe8c0f0a5efe",
-        "Name": "charge_mpx_sig_mpx_double_latch_gen2",
-        "ModType": "",
-        "ReloadSpeed": 0,
-        "ConflictingItems": [],
-        "FixSpeed": 0,
-        "Ergonomics": 1.5,
-        "Weight": 0.029,
         "ChamberSpeed": 0
     }
 }

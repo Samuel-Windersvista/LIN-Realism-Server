@@ -471,7 +471,7 @@
         "$type": "RealismMod.Gun, RealismMod",
         "ItemID": "673cab3e03c6a20581028bc1",
         "Name": "weapon_sako_trg_m10_86x70",
-  "WeapType": "",
+        "WeapType": "",
         "OperationType": "manual",
         "WeapAccuracy": 0,
         "BaseTorque": 0,

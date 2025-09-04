@@ -559,7 +559,7 @@ class Consumables {
                 serverItem._props.effects_damage = this.medItems.AFAK.effects_damage;
                 serverItem._props.effects_health = this.medItems.AFAK.effects_health;
                 serverItem._props.medUseTime = this.medItems.AFAK.medUseTime;
-                serverItem._props.hpResourceRate = 1;
+                serverItem._props.hpResourceRate = 0;
             }
             //Grizzly
             if (serverItem._id === "590c657e86f77412b013051d") {
@@ -568,7 +568,7 @@ class Consumables {
                 serverItem._props.effects_damage = this.medItems.grizzly.effects_damage;
                 serverItem._props.effects_health = this.medItems.grizzly.effects_health;
                 serverItem._props.medUseTime = this.medItems.grizzly.medUseTime;
-                serverItem._props.hpResourceRate = 1;
+                serverItem._props.hpResourceRate = 0;
             }
             ///Smeary stuff///
             //Vaseline
@@ -592,17 +592,18 @@ class Consumables {
             ///Surgery/
             //CMS
             if (serverItem._id === "5d02778e86f774203e7dedbe") {
-                serverItem._parent = "5448f3a14bdc2d27728b4569";
+                serverItem._parent = "5448f3ac4bdc2dce718b4569";
                 serverItem._props.MaxHpResource = this.medItems.cms.MaxHpResource;
                 serverItem._props.effects_damage = this.medItems.cms.effects_damage;
-                serverItem._props.medUseTime = this.medItems.cms.medUseTime;
+                // serverItem._props.medUseTime = this.medItems.cms.medUseTime;
+                serverItem._props.hpResourceRate = 0;
             }
             //Surv12
             if (serverItem._id === "5d02797c86f774203f38e30a") {
                 serverItem._parent = "5448f3a14bdc2d27728b4569";
                 serverItem._props.MaxHpResource = this.medItems.surv12.MaxHpResource;
                 serverItem._props.effects_damage = this.medItems.surv12.effects_damage;
-                serverItem._props.medUseTime = this.medItems.surv12.medUseTime;
+                //serverItem._props.medUseTime = this.medItems.surv12.medUseTime;
             }
         }
         if (this.modConf.logEverything == true) {
