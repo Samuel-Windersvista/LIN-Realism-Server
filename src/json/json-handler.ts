@@ -241,6 +241,7 @@ export class ItemStatHandler {
             serverItem._props.DurabilityBurnModificator = fileItem.DurabilityBurnModificator != null ? fileItem.DurabilityBurnModificator : serverItem._props.DurabilityBurnModificator;
             serverItem._props.HeatFactor = fileItem.HeatFactor != null ? fileItem.HeatFactor : serverItem._props.HeatFactor;
             serverItem._props.Damage = fileItem.Damage != null ? fileItem.Damage : serverItem._props.Damage;
+            serverItem._props.BallisticCoeficient = fileItem.BallisticCoeficient != null ? fileItem.BallisticCoeficient : serverItem._props.BallisticCoeficient;
             serverItem._props.ArmorDamage = 1;
             serverItem._props.casingMass = 1;
         }
@@ -343,6 +344,7 @@ export class ItemStatHandler {
                 serverItem._props.RecoilPosZMult = 1.5;
                 serverItem._props.RecoilCenter = fileItem.RecoilCenter != null && fileItem.RecoilCenter != null ? fileItem.RecoilCenter : serverItem._props.RecoilCenter;
                 serverItem._props.CanQueueSecondShot = fileItem.CanQueueSecondShot != null ? fileItem.CanQueueSecondShot : serverItem._props.CanQueueSecondShot;
+                serverItem._props.WeaponRecoilSettings.Enable = fileItem.EnableBSGVisRecoil != null ?  fileItem.EnableBSGVisRecoil : serverItem._props.WeaponRecoilSettings.Enable;
 
                 if (serverItem._props.weapClass != "pistol") {
                     serverItem._props.RecoilStableIndexShot = 1;

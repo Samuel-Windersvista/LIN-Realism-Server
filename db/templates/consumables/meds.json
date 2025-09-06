@@ -45,7 +45,8 @@
         "WaitPeriod": 10,
         "Strength": 15,
         "TunnelVisionStrength": 0.5,
-        "CanBeUsedInRaid": true
+        "CanBeUsedInRaid": true,
+        "DoesExtraResourceDebuff": true
     },
     "544fb3f34bdc2d03748b456a": {
         "$type": "RealismMod.Consumable, RealismMod",

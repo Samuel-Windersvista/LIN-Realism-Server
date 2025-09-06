@@ -128,7 +128,7 @@
         {
             "AbsoluteValue": true,
             "BuffType": "UnknownToxin",
-            "Chance": 0.15,
+            "Chance": 0.125,
             "Delay": 10,
             "Duration": 30,
             "SkillName": "",
@@ -982,7 +982,7 @@
         {
             "AbsoluteValue": true,
             "BuffType": "UnknownToxin",
-            "Chance": 1,
+            "Chance": 0.2,
             "Delay": 10,
             "Duration": 50,
             "SkillName": "",

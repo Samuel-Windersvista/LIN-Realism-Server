@@ -338,7 +338,7 @@ export class Consumables {
             }
             //Sausage
             if (serverItem._id === "635a758bfefc88a93f021b8a") {
-                serverItem._props.StimulatorBuffs = this.foodItems.mayonez.StimulatorBuffs;
+                serverItem._props.StimulatorBuffs = this.foodItems.sausage.StimulatorBuffs;
                 serverItem._props.effects_health = {};
                 serverItem._props.MaxResource = 1;
             }
@@ -513,7 +513,6 @@ export class Consumables {
                 serverItem._props.effects_damage = this.medItems.immobi.effects_damage;
                 serverItem._props.effects_health = this.medItems.immobi.effects_health;
                 serverItem._props.medUseTime = this.medItems.immobi.medUseTime;
-                serverItem._props.medUseTime = this.medItems.CAT.medUseTime;
             }
             //Alu Splint
             if (serverItem._id === "5af0454c86f7746bf20992e8") {
@@ -521,7 +520,6 @@ export class Consumables {
                 serverItem._props.effects_damage = this.medItems.alu.effects_damage;
                 serverItem._props.effects_health = this.medItems.alu.effects_health;
                 serverItem._props.medUseTime = this.medItems.alu.medUseTime;
-                serverItem._props.medUseTime = this.medItems.CAT.medUseTime;
             }
             ///Medkits///
             //CAR
@@ -532,7 +530,7 @@ export class Consumables {
                 serverItem._props.effects_health = this.medItems.CAR.effects_health;
                 serverItem._props.medUseTime = this.medItems.CAR.medUseTime;
                 serverItem._props.AnimationVariantsNumber = 1;
-                serverItem._props.hpResourceRate = 1;
+                serverItem._props.hpResourceRate = 0;
             }
             //Salewa
             if (serverItem._id === "544fb45d4bdc2dee738b4568") {
@@ -541,7 +539,7 @@ export class Consumables {
                 serverItem._props.effects_damage = this.medItems.salewa.effects_damage;
                 serverItem._props.effects_health = this.medItems.salewa.effects_health;
                 serverItem._props.medUseTime = this.medItems.salewa.medUseTime;
-                serverItem._props.hpResourceRate = 1;
+                serverItem._props.hpResourceRate = 0;
             }
             //IFAK
             if (serverItem._id === "590c678286f77426c9660122") {
@@ -550,7 +548,7 @@ export class Consumables {
                 serverItem._props.effects_damage = this.medItems.IFAK.effects_damage;
                 serverItem._props.effects_health = this.medItems.IFAK.effects_health;
                 serverItem._props.medUseTime = this.medItems.IFAK.medUseTime;
-                serverItem._props.hpResourceRate = 1;
+                serverItem._props.hpResourceRate = 0;
             }
             //AFAK
             if (serverItem._id === "60098ad7c2240c0fe85c570a") {
@@ -592,18 +590,15 @@ export class Consumables {
             ///Surgery/
             //CMS
             if (serverItem._id === "5d02778e86f774203e7dedbe") {
-                serverItem._parent = "5448f3ac4bdc2dce718b4569";
+                serverItem._parent = "5448f3a14bdc2d27728b4569";
                 serverItem._props.MaxHpResource = this.medItems.cms.MaxHpResource;
                 serverItem._props.effects_damage = this.medItems.cms.effects_damage;
-               // serverItem._props.medUseTime = this.medItems.cms.medUseTime;
-                serverItem._props.hpResourceRate = 0;
             }
             //Surv12
             if (serverItem._id === "5d02797c86f774203f38e30a") {
                 serverItem._parent = "5448f3a14bdc2d27728b4569";
                 serverItem._props.MaxHpResource = this.medItems.surv12.MaxHpResource;
                 serverItem._props.effects_damage = this.medItems.surv12.effects_damage;
-                //serverItem._props.medUseTime = this.medItems.surv12.medUseTime;
             }
         }
         if (this.modConf.logEverything == true) {

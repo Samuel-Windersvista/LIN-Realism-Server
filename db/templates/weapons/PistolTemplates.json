@@ -45,7 +45,8 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.01,
-        "RecoilIntensity": 0.63
+        "RecoilIntensity": 0.63,
+        "EnableBSGVisRecoil": false
     },
     "669fa3f88abd2662d80eee77": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -93,7 +94,8 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.011,
-        "RecoilIntensity": 0.66
+        "RecoilIntensity": 0.66,
+        "EnableBSGVisRecoil": false
     },
     "669fa3d876116c89840b1217": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -141,7 +143,8 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.01,
-        "RecoilIntensity": 0.65
+        "RecoilIntensity": 0.65,
+        "EnableBSGVisRecoil": false
     },
     "669fa39b48fc9f8db6035a0c": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -189,7 +192,8 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.01,
-        "RecoilIntensity": 0.65
+        "RecoilIntensity": 0.65,
+        "EnableBSGVisRecoil": false
     },
     "668fe5a998b5ad715703ddd6": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -237,7 +241,8 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.01,
-        "RecoilIntensity": 0.64
+        "RecoilIntensity": 0.64,
+        "EnableBSGVisRecoil": false
     },
     "633ec7c2a6918cb895019c6c": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -321,7 +326,7 @@
         "HipInnaccuracyGain": 0.16,
         "ShotgunDispersion": 20,
         "Velocity": -28,
-        "RecoilDamping": 0.8,
+        "RecoilDamping": 0.83,
         "RecoilHandDamping": 0.57,
         "WeaponAllowADS": false,
         "Weight": 0.5,
@@ -355,7 +360,7 @@
         "BaseTorque": -4,
         "HasShoulderContact": false,
         "Ergonomics": 75,
-        "VerticalRecoil": 210,
+        "VerticalRecoil": 195,
         "HorizontalRecoil": 550,
         "Dispersion": 5,
         "CameraRecoil": 0.019,
@@ -374,7 +379,7 @@
         "HipInnaccuracyGain": 0.16,
         "ShotgunDispersion": 20,
         "Velocity": 0,
-        "RecoilDamping": 0.82,
+        "RecoilDamping": 0.8,
         "RecoilHandDamping": 0.57,
         "WeaponAllowADS": false,
         "Weight": 0.685,
@@ -394,9 +399,10 @@
         "RecoilIntensity": 0.675,
         "RecoilCenter": {
             "x": 0,
-            "y": -0.3,
+            "y": -0.35,
             "z": -0.001
-        }
+        },
+        "EnableBSGVisRecoil": false
     },
     "5e81c3cbac2bb513793cdc75": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -1147,7 +1153,7 @@
         "HipInnaccuracyGain": 0.16,
         "ShotgunDispersion": 10,
         "Velocity": 0,
-        "RecoilDamping": 0.805,
+        "RecoilDamping": 0.8,
         "RecoilHandDamping": 0.4,
         "WeaponAllowADS": false,
         "Weight": 0.686,
@@ -1163,7 +1169,7 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.008,
-        "RecoilIntensity": 0.39
+        "RecoilIntensity": 0.37
     },
     "579204f224597773d619e051": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -1194,7 +1200,7 @@
         "HipInnaccuracyGain": 0.16,
         "ShotgunDispersion": 10,
         "Velocity": 0.5,
-        "RecoilDamping": 0.805,
+        "RecoilDamping": 0.79,
         "RecoilHandDamping": 0.4,
         "WeaponAllowADS": false,
         "Weight": 0.69,
@@ -1210,7 +1216,7 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.008,
-        "RecoilIntensity": 0.39
+        "RecoilIntensity": 0.369
     },
     "56e0598dd2720bb5668b45a6": {
         "$type": "RealismMod.Gun, RealismMod",
@@ -1241,7 +1247,7 @@
         "HipInnaccuracyGain": 0.16,
         "ShotgunDispersion": 10,
         "Velocity": -17.8,
-        "RecoilDamping": 0.805,
+        "RecoilDamping": 0.78,
         "RecoilHandDamping": 0.4,
         "WeaponAllowADS": false,
         "Weight": 0.674,
@@ -1257,7 +1263,7 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.01,
-        "RecoilIntensity": 0.39
+        "RecoilIntensity": 0.36
     },
     "5a17f98cfcdbcb0980087290": {
         "$type": "RealismMod.Gun, RealismMod",
