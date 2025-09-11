@@ -9,14 +9,16 @@ import { ISeasonalEventConfig } from "@spt/models/spt/config/ISeasonalEventConfi
 import { IBossLocationSpawn, ILocationBase } from "@spt/models/eft/common/ILocationBase";
 import { IGlobals } from "@spt/models/eft/common/IGlobals";
 import { ILocation } from "@spt/models/eft/common/ILocation";
-
+import { IPmcConfig } from "@spt/models/spt/config/IPmcConfig";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { ConfigTypes } from "@spt/models/enums/ConfigTypes";
 
 const botZones = require("../../db/maps/spawnZones.json");
 const bossSpawns = require("../../db/maps/bossSpawns.json");
 const spawnWaves = require("../../db/maps/spawnWaves.json");
 
 export class Spawns {
-    constructor(private logger: ILogger, private tables: IDatabaseTables, private modConf, private mapDB: ILocations, private utils: Utils) { }
+    constructor(private logger: ILogger, private configServ: ConfigServer, private locationConfig: ILocationConfig, private tables: IDatabaseTables, private modConf, private mapDB: ILocations, private utils: Utils) { }
 
     public setBossSpawnChance(level: number, databaseService: DatabaseService, seasonalEventConfig: ISeasonalEventConfig) {
         level = level <= 5 ? 0 : level;
@@ -70,7 +72,7 @@ export class Spawns {
         const infectionHalloween = globals.config.SeasonActivity.InfectionHalloween;
         const botsToAddPerMap = seasonalEventConfig.eventBossSpawns["halloweenzombies"];
         //infectionHalloween.Enabled = true;
-        
+
         //infectionHalloween.DisplayUIEnabled = true;
         //this.mapDB.bigmap.base.BossLocationSpawn = [];
         //this.mapDB.bigmap.base.waves = [];       
@@ -104,30 +106,51 @@ export class Spawns {
     }
 
 
-    public loadSpawnChanges(locationConfig: ILocationConfig) {
+    public loadSpawnChanges() {
         //&& ModTracker.swagPresent == false
         this.loadBossSpawnChanges();
 
         //SPT does its own custom PMC waves, this couble be doubling up or interfering in some way
         if (this.modConf.spawn_waves == true && !ModTracker.swagPresent && !ModTracker.qtbSpawnsActive) {
-            // locationConfig.customWaves.normal = {}; //get rid of the extra waves of scavs SPT adds
-            // locationConfig.customWaves.boss = {}; //get rid of extra PMC spawns
+
             //locationConfig.addCustomBotWavesToMaps = true;
-            locationConfig.splitWaveIntoSingleSpawnsSettings.enabled = false;
-            // this.mapDB.bigmap.base.waves = spawnWaves.CustomsWaves;
-            // this.mapDB.lighthouse.base.waves = spawnWaves.LighthouseWaves;
+
+            this.locationConfig.splitWaveIntoSingleSpawnsSettings.enabled = false;
+            this.locationConfig.addCustomBotWavesToMaps = false;
+            this.locationConfig.customWaves.normal = {}; //get rid of the extra waves of scavs SPT adds
+            this.locationConfig.customWaves.boss = {}; //get rid of extra PMC spawns
+       
+            this.mapDB.bigmap.base.NonWaveGroupScenario.Enabled = false;
+            this.mapDB.bigmap.base.NewSpawn = false;
+            this.mapDB.bigmap.base.OfflineNewSpawn = false;
+            this.mapDB.bigmap.base.OfflineOldSpawn = true;
+            this.mapDB.bigmap.base.OldSpawn = true;
+            this.mapDB.bigmap.base.waves = spawnWaves.CustomsWaves
+
+            this.mapDB.lighthouse.base.waves = spawnWaves.LighthouseWaves;
             this.mapDB.factory4_day.base.waves = spawnWaves.FactoryWaves;
             this.mapDB.factory4_night.base.waves = spawnWaves.FactoryWaves;
-            this.mapDB.shoreline.base.waves = [];
-            this.mapDB.tarkovstreets.base.waves = [];
-            // this.mapDB.interchange.base.waves = spawnWaves.InterchangeWaves;
-            // this.mapDB.shoreline.base.waves = spawnWaves.ShorelineWaves;
-            // this.mapDB.rezervbase.base.waves = spawnWaves.ReserveWaves;
-            // this.mapDB.tarkovstreets.base.waves = spawnWaves.StreetsWaves;
-            // this.mapDB.woods.base.waves = spawnWaves.WoodsWaves;
+            this.mapDB.interchange.base.waves = spawnWaves.InterchangeWaves;
+            this.mapDB.shoreline.base.waves = spawnWaves.ShorelineWaves;
+            this.mapDB.rezervbase.base.waves = spawnWaves.ReserveWaves;
+            this.mapDB.tarkovstreets.base.waves = spawnWaves.StreetsWaves;
+            this.mapDB.woods.base.waves = spawnWaves.WoodsWaves;
             this.mapDB.laboratory.base.waves = spawnWaves.LabsWaves;
-            // this.mapDB.sandbox.base.waves = spawnWaves.GroundZeroWaves;
-            // this.mapDB.sandbox_high.base.waves = spawnWaves.GroundZeroWaves;
+            this.mapDB.sandbox.base.waves = spawnWaves.GroundZeroWaves;
+            this.mapDB.sandbox_high.base.waves = spawnWaves.GroundZeroWaves;
+            // this.mapDB.shoreline.base.waves = [];
+            // this.mapDB.tarkovstreets.base.waves = [];
+
+            var pmcConfig = this.configServ.getConfig<IPmcConfig>(ConfigTypes.PMC);
+
+            for (const [key, waves] of Object.entries(pmcConfig.customPmcWaves)) {
+                waves.forEach(wave => {
+                    wave.BossChance = 0;
+                    wave.IgnoreMaxBots = false;
+                });
+            }
+
+            //prevents too many bots from spawning
             for (const i in this.mapDB) {
                 const map = this.mapDB[i]?.base;
                 if (map != null && map?.BossLocationSpawn != null) {

@@ -25,7 +25,7 @@
         "Convergence": 0,
         "LoyaltyLevel": 1,
         "MeleeDamage": 112,
-        "MeleePen": 22
+        "MeleePen": 40
     },
     "6783b041281387d669fd3722": {
         "$type": "RealismMod.WeaponMod, RealismMod",
@@ -53,7 +53,7 @@
         "Convergence": 0,
         "LoyaltyLevel": 1,
         "MeleeDamage": 65,
-        "MeleePen": 17
+        "MeleePen": 22
     },
     "6783b079e4585dfb0fec3c73": {
         "$type": "RealismMod.WeaponMod, RealismMod",
@@ -81,7 +81,7 @@
         "Convergence": 0,
         "LoyaltyLevel": 1,
         "MeleeDamage": 70,
-        "MeleePen": 15
+        "MeleePen": 18
     },
     "6699370c57df3e2b4e0a0dab": {
         "$type": "RealismMod.WeaponMod, RealismMod",
@@ -2533,7 +2533,7 @@
         "Loudness": 20,
         "Convergence": 0,
         "LoyaltyLevel": 2,
-        "MeleeDamage": 10,
+        "MeleeDamage": 20,
         "MeleePen": 8,
         "Flash": -30
     },
@@ -2967,7 +2967,7 @@
         "Loudness": 40,
         "Convergence": 20,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 8.5,
+        "MeleeDamage": 15,
         "MeleePen": 7,
         "Flash": 30
     },
@@ -2996,7 +2996,7 @@
         "Loudness": 40,
         "Convergence": 20,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 8.5,
+        "MeleeDamage": 15,
         "MeleePen": 7,
         "Flash": 30
     },
@@ -3025,7 +3025,7 @@
         "Loudness": 40,
         "Convergence": 20,
         "LoyaltyLevel": 3,
-        "MeleeDamage": 8.5,
+        "MeleeDamage": 15,
         "MeleePen": 7,
         "Flash": 30
     },
@@ -3081,7 +3081,7 @@
         "Loudness": 31,
         "Convergence": 25,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 9,
+        "MeleeDamage": 12,
         "MeleePen": 6,
         "Flash": 25
     },
@@ -3110,7 +3110,7 @@
         "Loudness": 31,
         "Convergence": 25,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 8,
+        "MeleeDamage": 12,
         "MeleePen": 6,
         "Flash": 25
     },
@@ -3491,7 +3491,7 @@
         "Loudness": 37,
         "Convergence": 0,
         "LoyaltyLevel": 2,
-        "MeleeDamage": 3,
+        "MeleeDamage": 8,
         "Flash": 10
     },
     "59e61eb386f77440d64f5daf": {
@@ -3681,7 +3681,7 @@
         "Loudness": 24,
         "Convergence": 9,
         "LoyaltyLevel": 2,
-        "MeleeDamage": 7,
+        "MeleeDamage": 10,
         "Flash": 0
     },
     "5ac7655e5acfc40016339a19": {
@@ -3979,7 +3979,7 @@
         "Loudness": 32,
         "Convergence": 14,
         "LoyaltyLevel": 3,
-        "MeleeDamage": 4,
+        "MeleeDamage": 7,
         "MeleePen": 5,
         "Flash": 25
     },
@@ -4985,7 +4985,7 @@
         "Loudness": -12,
         "Convergence": 0,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 4,
+        "MeleeDamage": 6,
         "MeleePen": 5,
         "Flash": -75
     },
@@ -5014,7 +5014,7 @@
         "Loudness": -12,
         "Convergence": 0,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 4,
+        "MeleeDamage": 6,
         "MeleePen": 5,
         "Flash": -75
     },
@@ -5376,7 +5376,7 @@
         "Loudness": 45,
         "Convergence": -30,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 12,
+        "MeleeDamage": 20,
         "MeleePen": 8,
         "Flash": 30
     },
@@ -6414,7 +6414,7 @@
         "Loudness": -29,
         "Convergence": 0,
         "LoyaltyLevel": 5,
-        "MeleeDamage": 9,
+        "MeleeDamage": 16,
         "MeleePen": 9,
         "Flash": 6
     },
@@ -6443,7 +6443,7 @@
         "Loudness": -34,
         "Convergence": 0,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 9,
+        "MeleeDamage": 16,
         "MeleePen": 9,
         "Flash": 3
     },
@@ -6526,7 +6526,7 @@
         "Loudness": -36,
         "Convergence": 0,
         "LoyaltyLevel": 4,
-        "MeleeDamage": 8,
+        "MeleeDamage": 15,
         "MeleePen": 7,
         "Flash": 2.25
     },

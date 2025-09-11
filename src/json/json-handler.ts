@@ -344,7 +344,6 @@ export class ItemStatHandler {
                 serverItem._props.RecoilPosZMult = 1.5;
                 serverItem._props.RecoilCenter = fileItem.RecoilCenter != null && fileItem.RecoilCenter != null ? fileItem.RecoilCenter : serverItem._props.RecoilCenter;
                 serverItem._props.CanQueueSecondShot = fileItem.CanQueueSecondShot != null ? fileItem.CanQueueSecondShot : serverItem._props.CanQueueSecondShot;
-                serverItem._props.WeaponRecoilSettings.Enable = fileItem.EnableBSGVisRecoil != null ?  fileItem.EnableBSGVisRecoil : serverItem._props.WeaponRecoilSettings.Enable;
 
                 if (serverItem._props.weapClass != "pistol") {
                     serverItem._props.RecoilStableIndexShot = 1;

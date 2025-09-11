@@ -48,6 +48,7 @@ const meds_1 = require("./items/meds");
 const player_1 = require("./player/player");
 const weapons_globals_1 = require("./weapons/weapons_globals");
 const bots_1 = require("./bots/bots");
+const bot_gen_1 = require("./bots/bot_gen");
 const items_1 = require("./items/items");
 const json_gen_1 = require("./json/json_gen");
 const quests_1 = require("./traders/quests");
@@ -179,32 +180,27 @@ class Main {
                 }
             }
         ], "RealismMod");
-        // if (modConfig.bot_changes == true && ModTracker.alpPresent == false) {
-        //     const botLevelGenerator = container.resolve<BotLevelGenerator>("BotLevelGenerator");
-        //     const botInventoryGenerator = container.resolve<BotInventoryGenerator>("BotInventoryGenerator");
-        //     const botHelper = container.resolve<BotHelper>("BotHelper");
-        //     const botEquipmentFilterService = container.resolve<BotEquipmentFilterService>("BotEquipmentFilterService");
-        //     const seasonalEventService = container.resolve<SeasonalEventService>("SeasonalEventService");
-        //     const botGeneratorHelper = container.resolve<BotGeneratorHelper>("BotGeneratorHelper");
-        //     const botNameService = container.resolve<BotNameService>("BotNameService");
-        //     const itemFilterService = container.resolve<ItemFilterService>("ItemFilterService");
-        //     const botGen = new BotGen(
-        //         logger, hashUtil, randomUtil, timeUtil,
-        //         profileHelper, databaseService, botInventoryGenerator,
-        //         botLevelGenerator, botEquipmentFilterService, weightedRandomHelper,
-        //         botHelper, botGeneratorHelper, seasonalEventService,
-        //         itemFilterService, botNameService, configServer, cloner);
-        //     container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
-        //         result.prepareAndGenerateBot = (sessionId: string, botGenerationDetails: IBotGenerationDetails): IBotBase => {
-        //             return botGen.myPrepareAndGenerateBot(sessionId, botGenerationDetails);
-        //         }
-        //     }, { frequency: "Always" });
-        //     container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
-        //         result.generatePlayerScav = (sessionId: string, role: string, difficulty: string, botTemplate: IBotType): IBotBase => {
-        //             return botGen.myGeneratePlayerScav(sessionId, role, difficulty, botTemplate);
-        //         }
-        //     }, { frequency: "Always" });
-        // }
+        if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
+            const botLevelGenerator = container.resolve("BotLevelGenerator");
+            const botInventoryGenerator = container.resolve("BotInventoryGenerator");
+            const botHelper = container.resolve("BotHelper");
+            const botEquipmentFilterService = container.resolve("BotEquipmentFilterService");
+            const seasonalEventService = container.resolve("SeasonalEventService");
+            const botGeneratorHelper = container.resolve("BotGeneratorHelper");
+            const botNameService = container.resolve("BotNameService");
+            const itemFilterService = container.resolve("ItemFilterService");
+            const botGen = new bot_gen_1.BotGen(logger, hashUtil, randomUtil, timeUtil, profileHelper, databaseService, botInventoryGenerator, botLevelGenerator, botEquipmentFilterService, weightedRandomHelper, botHelper, botGeneratorHelper, seasonalEventService, itemFilterService, botNameService, configServer, cloner);
+            container.afterResolution("BotGenerator", (_t, result) => {
+                result.prepareAndGenerateBot = (sessionId, botGenerationDetails) => {
+                    return botGen.myPrepareAndGenerateBot(sessionId, botGenerationDetails);
+                };
+            }, { frequency: "Always" });
+            container.afterResolution("BotGenerator", (_t, result) => {
+                result.generatePlayerScav = (sessionId, role, difficulty, botTemplate) => {
+                    return botGen.myGeneratePlayerScav(sessionId, role, difficulty, botTemplate);
+                };
+            }, { frequency: "Always" });
+        }
         container.afterResolution("TraderAssortHelper", (_t, result) => {
             result.resetExpiredTrader = (trader) => {
                 return traderRefersh.myResetExpiredTrader(trader);
@@ -256,7 +252,7 @@ class Main {
                     const utils = utils_1.Utils.getInstance();
                     const tieredFlea = new fleamarket_1.TieredFlea(postLoadTables, aKIFleaConf);
                     const player = new player_1.Player(logger, postLoadTables, modConfig, medItems, utils);
-                    const maps = new spawns_1.Spawns(logger, postLoadTables, modConfig, postLoadTables.locations, utils);
+                    const maps = new spawns_1.Spawns(logger, configServer, locationConfig, postLoadTables, modConfig, postLoadTables.locations, utils);
                     const quests = new quests_1.Quests(logger, postLoadTables, modConfig);
                     const randomizeTraderAssort = new traders_1.RandomizeTraderAssort();
                     const pmcData = profileHelper.getPmcProfile(sessionID);
@@ -455,7 +451,7 @@ class Main {
                     const profileData = profileHelper.getFullProfile(sessionID);
                     const quests = new quests_1.Quests(logger, postLoadTables, modConfig);
                     const seeasonalEventConfig = container.resolve("ConfigServer").getConfig(ConfigTypes_1.ConfigTypes.SEASONAL_EVENT);
-                    const maps = new spawns_1.Spawns(logger, postLoadTables, modConfig, postLoadTables.locations, utils);
+                    const maps = new spawns_1.Spawns(logger, configServer, locationConfig, postLoadTables, modConfig, postLoadTables.locations, utils);
                     //had a concern that bot loot cache isn't being reset properly since I've overriden it with my own implementation, so to be safe...
                     // const myGetLootCache = new MyLootCache(logger, jsonUtil, itemHelper, postLoadDBServer, pmcLootGenerator, localisationService, ragfairPriceService);
                     // myGetLootCache.myClearCache();
@@ -562,7 +558,7 @@ class Main {
         const fleaChangesPreDB = new fleamarket_1.FleaChangesPreDBLoad(logger, aKIFleaConf, modConfig);
         const quests = new quests_1.Quests(logger, tables, modConfig);
         const traders = new traders_1.Traders(logger, tables, modConfig, traderConf, utils);
-        const maps = new spawns_1.Spawns(logger, tables, modConfig, tables.locations, utils);
+        const maps = new spawns_1.Spawns(logger, configServer, locationConfig, tables, modConfig, tables.locations, utils);
         const gear = new gear_1.Gear(tables, logger, modConfig);
         const itemCloning = new item_cloning_1.ItemCloning(logger, tables, modConfig, jsonUtil, medItems, crafts);
         const statHandler = json_handler_1.ItemStatHandler.getInstance(tables, logger, hashUtil);
@@ -595,7 +591,7 @@ class Main {
         if (modConfig.open_zones_fix == true && !utils_1.ModTracker.swagPresent) {
             maps.openZonesFix();
         }
-        maps.loadSpawnChanges(locationConfig);
+        maps.loadSpawnChanges();
         if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
             botLoader.loadBots();
         }

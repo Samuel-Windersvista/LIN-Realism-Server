@@ -776,9 +776,8 @@ class BotLoader {
         this.botConfPMC().maxPocketLootTotalRub = rmBotConfig.pmc1.maxPocketLootTotalRub;
         this.botConfPMC().maxVestLootTotalRub = rmBotConfig.pmc1.maxVestLootTotalRub;
         this.botConfPMC().looseWeaponInBackpackChancePercent = rmBotConfig.pmc1.looseWeaponInBackpackChancePercent;
-        this.botConfPMC().isUsec = rmBotConfig.pmc1.isUsec;
         if (this.modConfig.spawn_waves == true && !utils_1.ModTracker.swagPresent && !utils_1.ModTracker.qtbSpawnsActive) {
-            //this.botConfPMC().convertIntoPmcChance = rmBotConfig.pmc1.convertIntoPmcChance;
+            this.botConfPMC().isUsec = this.utils.pickRandNumInRange(40, 60);
         }
         this.botConf().itemSpawnLimits.pmc = pmcLootLimits.PMCLootLimit1;
         this.usecBase.appearance.head = usecLO.appearance.head;
@@ -843,9 +842,8 @@ class BotLoader {
         this.botConfPMC().maxPocketLootTotalRub = rmBotConfig.pmc2.maxPocketLootTotalRub;
         this.botConfPMC().maxVestLootTotalRub = rmBotConfig.pmc2.maxVestLootTotalRub;
         this.botConfPMC().looseWeaponInBackpackChancePercent = rmBotConfig.pmc2.looseWeaponInBackpackChancePercent;
-        this.botConfPMC().isUsec = rmBotConfig.pmc2.isUsec;
         if (this.modConfig.spawn_waves == true && !utils_1.ModTracker.swagPresent && !utils_1.ModTracker.qtbSpawnsActive) {
-            //this.botConfPMC().convertIntoPmcChance = rmBotConfig.pmc2.convertIntoPmcChance;
+            this.botConfPMC().isUsec = this.utils.pickRandNumInRange(40, 60);
         }
         this.botConf().itemSpawnLimits.pmc = pmcLootLimits.PMCLootLimit2;
         this.usecBase.appearance.head = usecLO.appearance.head;
@@ -910,9 +908,8 @@ class BotLoader {
         this.botConfPMC().maxPocketLootTotalRub = rmBotConfig.pmc3.maxPocketLootTotalRub;
         this.botConfPMC().maxVestLootTotalRub = rmBotConfig.pmc3.maxVestLootTotalRub;
         this.botConfPMC().looseWeaponInBackpackChancePercent = rmBotConfig.pmc3.looseWeaponInBackpackChancePercent;
-        this.botConfPMC().isUsec = rmBotConfig.pmc3.isUsec;
         if (this.modConfig.spawn_waves == true && !utils_1.ModTracker.swagPresent && !utils_1.ModTracker.qtbSpawnsActive) {
-            //this.botConfPMC().convertIntoPmcChance = rmBotConfig.pmc3.convertIntoPmcChance;
+            this.botConfPMC().isUsec = this.utils.pickRandNumInRange(40, 60);
         }
         this.botConf().itemSpawnLimits.pmc = pmcLootLimits.PMCLootLimit3;
         this.usecBase.appearance.head = usecLO.appearance.head;

@@ -610,6 +610,6 @@
         "BaseChamberCheckSpeed": 1,
         "BaseFixSpeed": 1,
         "OffsetRotation": 0.015,
-        "RecoilIntensity": 0.26
+        "RecoilIntensity": 0.3
     }
 }

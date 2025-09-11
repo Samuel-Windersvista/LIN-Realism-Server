@@ -79,8 +79,13 @@ export class BotLootGen extends BotLootGenerator {
         const jsonUtil = container.resolve<JsonUtil>("JsonUtil");
         const pmcLootGenerator = container.resolve<PMCLootGenerator>("PMCLootGenerator");
         const ragfairPriceService = container.resolve<RagfairPriceService>("RagfairPriceService");
-        const databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
-        const myGetLootCache = new MyLootCacheService(this.logger, this.itemHelper, databaseServer, pmcLootGenerator, this.localisationService, ragfairPriceService, this.cloner);
+        const myGetLootCache = new MyLootCacheService(
+            this.logger, 
+            this.itemHelper, 
+            pmcLootGenerator, 
+            this.localisationService, 
+            ragfairPriceService, 
+            this.cloner);
 
         const itemCounts = botJsonTemplate.generation.items;
 
