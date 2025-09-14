@@ -561,7 +561,7 @@
     "6783ae5bb52da6ed912e3d01": {
         "$type": "RealismMod.Gun, RealismMod",
         "ItemID": "6783ae5bb52da6ed912e3d01",
-        "Name": "weapon_benelli_m3_s90_12g",
+        "Name": "mech_weapon_benelli_m3_s90_12g",
         "WeapType": "",
         "OperationType": "tubefed",
         "WeapAccuracy": 0,

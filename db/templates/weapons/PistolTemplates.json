@@ -295,7 +295,8 @@
             "x": 0,
             "y": -0.4,
             "z": -0.001
-        }
+        },
+        "EnableExtraBSGVisRecoil": false
     },
     "624c2e8614da335f1e034d8c": {
         "$type": "RealismMod.Gun, RealismMod",
