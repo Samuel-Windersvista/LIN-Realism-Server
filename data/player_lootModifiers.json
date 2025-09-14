@@ -338,7 +338,7 @@
     "6846b59f0001dae9816d4bf5": {
         "looseLootMultiplier": {
             "bigmap": 2,
-            "develop": 1.5,
+            "develop": 1.875,
             "factory4_day": 2.5,
             "factory4_night": 3,
             "interchange": 2.5,
@@ -346,15 +346,15 @@
             "rezervbase": 2.9,
             "shoreline": 3.7,
             "woods": 2,
-            "hideout": 1.5,
+            "hideout": 1.875,
             "lighthouse": 2.8,
-            "privatearea": 1.5,
-            "suburbs": 1.5,
+            "privatearea": 1.875,
+            "suburbs": 1.875,
             "tarkovstreets": 3,
-            "terminal": 1.5,
+            "terminal": 1.875,
             "sandbox": 2.8,
             "sandbox_high": 2,
-            "town": 1.5
+            "town": 1.875
         },
         "staticLootMultiplier": {
             "bigmap": 1,
@@ -366,7 +366,7 @@
             "rezervbase": 1,
             "shoreline": 1,
             "woods": 1,
-            "hideout": 0.8,
+            "hideout": 1,
             "lighthouse": 1,
             "privatearea": 1,
             "suburbs": 1,

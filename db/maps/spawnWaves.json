@@ -1021,61 +1021,6 @@
             "SpawnMode": [
                 "regular"
             ],
-            "slots_min": 0,
-            "BotPreset": "hard",
-            "BotSide": "Savage",
-            "SpawnMode": [
-            "slots_max": 3,
-            "slots_min": 0,
-            "time_max": 10,
-                "pve"
-            ],
-            "SpawnPoints": "ZonePTOR1",
-        },
-        {
-            "BotPreset": "hard",
-            "isPlayers": true,
-            "number": 3,
-            "slots_max": 3,
-            "SpawnMode": [
-                "regular",
-                "pve"
-            "time_max": 10,
-            "time_min": 1
-        },
-            "SpawnPoints": "ZoneBunkerStorage",
-            "WildSpawnType": "assault",
-            "isPlayers": true,
-            "BotPreset": "hard",
-            "BotSide": "Savage",
-            "SpawnMode": [
-            "slots_max": 3,
-            "slots_min": 0,
-            "time_max": 10,
-                "pve"
-            ],
-            "SpawnPoints": "ZoneSubCommand",
-        },
-        {
-            "BotPreset": "hard",
-            "isPlayers": true,
-            "number": 12,
-            "slots_max": 3,
-            "SpawnMode": [
-                "regular",
-                "pve"
-            "time_max": 2100,
-            "time_min": 600
-        },
-            "SpawnPoints": "ZonePTOR2",
-            "WildSpawnType": "assault",
-            "isPlayers": true,
-            "BotPreset": "hard",
-            "BotSide": "Savage",
-            "SpawnMode": [
-            "slots_max": 3,
-            "slots_min": 0,
-            "time_max": 2100,
             "SpawnPoints": "ZoneCustoms",
             "WildSpawnType": "assault",
             "isPlayers": false,

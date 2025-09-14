@@ -247,7 +247,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
 
                             return jsonUtil.serialize(realismInfo);
                         } catch (e) {
-                            logger.error("Realism: Failed to read info file"+ e);
+                            logger.error("Realism: Failed to read info file" + e);
                         }
                     }
                 }
@@ -415,12 +415,11 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                                 ragfairOfferGenerator.generateFleaOffersForTrader(traderID);
                             }
 
-                            if (modConfig.tiered_flea == true) {
-                                tieredFlea.updateFlea(logger, ragfairOfferGenerator, container, ProfileTracker.averagePlayerLevel);
-                            }
-                            if (modConfig.boss_spawns == true) {
-                                maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
-                            }
+                            if (modConfig.tiered_flea == true) tieredFlea.updateFlea(logger, ragfairOfferGenerator, container, ProfileTracker.averagePlayerLevel);
+
+                            if (modConfig.boss_spawns == true) maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel);
+
+                            if (modConfig.spawn_waves == true) maps.setRegularSpawnWaveChance();
 
                             if (modConfig.logEverything == true) {
                                 logger.info("Realism Mod: Profile Checked");
@@ -552,22 +551,6 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                                 botLoader.updateBots(pmcData, logger, modConfig, botLoader, utils);
                             }
 
-                            // if (!ModTracker.swagPresent && !ModTracker.qtbSpawnsActive) {
-                            //     pmcConf.convertIntoPmcChance.laboratory = {
-                            //         "assault":
-                            //         {
-                            //             "min": 100,
-                            //             "max": 100
-                            //         },
-                            //         "pmcbot":
-                            //         {
-                            //             "min": 0,
-                            //             "max": 0
-                            //         }
-
-                            //     };
-                            // }
-
                             logger.warning("Avg. Player Level = " + ProfileTracker.averagePlayerLevel);
                             logger.warning("Map Name = " + matchInfo.location);
                             logger.warning("Map Type  = " + mapType);
@@ -623,7 +606,9 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
 
                             if (modConfig.enable_hazard_zones) quests.resetRepeatableQuests(profileData);
 
-                            if (modConfig.boss_spawns == true) maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
+                            if (modConfig.boss_spawns == true) maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel);
+
+                            if (modConfig.spawn_waves == true) maps.setRegularSpawnWaveChance();
 
                             if (modConfig.loot_changes) this.modifyMapLoot(locationConfig, RaidInfoTracker.mapName, info, pmcData, sessionID, utils, logger);
 
@@ -771,11 +756,12 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             botLoader.setBotHealth();
         }
 
-        if (modConfig.open_zones_fix == true && !ModTracker.swagPresent) {
-            maps.openZonesFix();
-        }
+        //either no longer needed or doesn't account for new spawn systen and locations
+        // if (modConfig.open_zones_fix == true && !ModTracker.swagPresent) {
+        //     maps.openZonesFix();
+        // }
 
-        maps.loadSpawnChanges();
+        maps.loadSpawnChangesOnStartup();
 
         if (modConfig.bot_changes == true && ModTracker.alpPresent == false) {
             botLoader.loadBots();

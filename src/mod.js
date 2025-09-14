@@ -296,12 +296,12 @@ class Main {
                         for (let traderID of traders) {
                             ragfairOfferGenerator.generateFleaOffersForTrader(traderID);
                         }
-                        if (modConfig.tiered_flea == true) {
+                        if (modConfig.tiered_flea == true)
                             tieredFlea.updateFlea(logger, ragfairOfferGenerator, container, utils_1.ProfileTracker.averagePlayerLevel);
-                        }
-                        if (modConfig.boss_spawns == true) {
-                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
-                        }
+                        if (modConfig.boss_spawns == true)
+                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel);
+                        if (modConfig.spawn_waves == true)
+                            maps.setRegularSpawnWaveChance();
                         if (modConfig.logEverything == true) {
                             logger.info("Realism Mod: Profile Checked");
                         }
@@ -402,20 +402,6 @@ class Main {
                         if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
                             botLoader.updateBots(pmcData, logger, modConfig, botLoader, utils);
                         }
-                        // if (!ModTracker.swagPresent && !ModTracker.qtbSpawnsActive) {
-                        //     pmcConf.convertIntoPmcChance.laboratory = {
-                        //         "assault":
-                        //         {
-                        //             "min": 100,
-                        //             "max": 100
-                        //         },
-                        //         "pmcbot":
-                        //         {
-                        //             "min": 0,
-                        //             "max": 0
-                        //         }
-                        //     };
-                        // }
                         logger.warning("Avg. Player Level = " + utils_1.ProfileTracker.averagePlayerLevel);
                         logger.warning("Map Name = " + matchInfo.location);
                         logger.warning("Map Type  = " + mapType);
@@ -464,7 +450,9 @@ class Main {
                         if (modConfig.enable_hazard_zones)
                             quests.resetRepeatableQuests(profileData);
                         if (modConfig.boss_spawns == true)
-                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
+                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel);
+                        if (modConfig.spawn_waves == true)
+                            maps.setRegularSpawnWaveChance();
                         if (modConfig.loot_changes)
                             this.modifyMapLoot(locationConfig, utils_1.RaidInfoTracker.mapName, info, pmcData, sessionID, utils, logger);
                         this.checkEventQuests(pmcData);
@@ -588,10 +576,11 @@ class Main {
             itemCloning.createCustomPlates();
             botLoader.setBotHealth();
         }
-        if (modConfig.open_zones_fix == true && !utils_1.ModTracker.swagPresent) {
-            maps.openZonesFix();
-        }
-        maps.loadSpawnChanges();
+        //either no longer needed or doesn't account for new spawn systen and locations
+        // if (modConfig.open_zones_fix == true && !ModTracker.swagPresent) {
+        //     maps.openZonesFix();
+        // }
+        maps.loadSpawnChangesOnStartup();
         if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
             botLoader.loadBots();
         }
