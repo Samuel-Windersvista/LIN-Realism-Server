@@ -209,6 +209,20 @@
         "TemplateType": "gear",
         "Price": 15050
     },
+    "6745895717824b1ec20570a6": {
+        "$type": "RealismMod.Gear, RealismMod",
+        "ItemID": "6745895717824b1ec20570a6",
+        "Name": "helmet_6B47_cover_artic",
+        "AllowADS": true,
+        "LoyaltyLevel": 2,
+        "ArmorClass": "GOST 1",
+        "CanSpall": false,
+        "SpallReduction": 1,
+        "ReloadSpeedMulti": 1,
+        "Comfort": 1.02,
+        "TemplateType": "gear",
+        "Price": 15050
+    },
     "66bdc28a0b603c26902b2011": {
         "$type": "RealismMod.Gear, RealismMod",
         "ItemID": "66bdc28a0b603c26902b2011",
@@ -532,6 +546,62 @@
         "Comfort": 1.11,
         "TemplateType": "gear",
         "Price": 19000
+    },
+    "675956062f6ddfe8ff0e2806": {
+        "$type": "RealismMod.Gear, RealismMod",
+        "ItemID": "675956062f6ddfe8ff0e2806",
+        "Name": "item_equipment_helmet_team_flux_aplpine",
+        "AllowADS": true,
+        "LoyaltyLevel": 4,
+        "ArmorClass": "NIJ IIIA",
+        "CanSpall": false,
+        "SpallReduction": 1,
+        "ReloadSpeedMulti": 1,
+        "Comfort": 0.82,
+        "TemplateType": "gear",
+        "Price": 32500
+    },
+    "6759655674aa5e0825040d62": {
+        "$type": "RealismMod.Gear, RealismMod",
+        "ItemID": "6759655674aa5e0825040d62",
+        "Name": "item_equipment_helmet_team_flux",
+        "AllowADS": true,
+        "LoyaltyLevel": 4,
+        "ArmorClass": "NIJ IIIA",
+        "CanSpall": false,
+        "SpallReduction": 1,
+        "ReloadSpeedMulti": 1,
+        "Comfort": 0.82,
+        "TemplateType": "gear",
+        "Price": 32500
+    },
+    "67597d241d5a44f2f605df06": {
+        "$type": "RealismMod.Gear, RealismMod",
+        "ItemID": "67597d241d5a44f2f605df06",
+        "Name": "item_equipment_helmet_team_strike_arid",
+        "AllowADS": true,
+        "LoyaltyLevel": 4,
+        "ArmorClass": "NIJ IIIA",
+        "CanSpall": false,
+        "SpallReduction": 1,
+        "ReloadSpeedMulti": 1,
+        "Comfort": 0.84,
+        "TemplateType": "gear",
+        "Price": 32000
+    },
+    "67597ceea35600b4c10cea86": {
+        "$type": "RealismMod.Gear, RealismMod",
+        "ItemID": "67597ceea35600b4c10cea86",
+        "Name": "item_equipment_helmet_team_flux_mc",
+        "AllowADS": true,
+        "LoyaltyLevel": 4,
+        "ArmorClass": "NIJ IIIA",
+        "CanSpall": false,
+        "SpallReduction": 1,
+        "ReloadSpeedMulti": 1,
+        "Comfort": 0.84,
+        "TemplateType": "gear",
+        "Price": 32000
     },
     "5e00c1ad86f774747333222c": {
         "$type": "RealismMod.Gear, RealismMod",

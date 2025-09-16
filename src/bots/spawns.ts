@@ -30,7 +30,7 @@ export class Spawns {
 
     public setRegularSpawnWaveChance() {
         this.loadBaseSpawnWaves();
-        this.randomizeRegularBotWaves();
+        this.randomizeScavWaves();
         this.randomizePMCSpawnChance();
     }
 
@@ -126,16 +126,20 @@ export class Spawns {
         this.mapDB.sandbox_high.base.waves = JSON.parse(JSON.stringify(spawnWaves.GroundZeroWaves));
     }
 
-    private randomizeRegularBotWaves() {
+    private randomizeScavWaves() {
         const moreScavs = this.modConf.increased_bot_cap == true;
-        const odds = moreScavs ? 50 : 70;
+        const odds = moreScavs ? 60 : 77;
         for (const i in this.mapDB) {
             const map: ILocationBase = this.mapDB[i]?.base;
             if (map != null && map?.waves != null) {
+                const waveSize = map.waves.length;
+                const waveFactor = Math.round(waveSize / 50) + 1;
                 let newWaves: IWave[] = [];
-                map.waves.forEach(wave => {
-                    if (this.utils.pickRandNumInRange(0, 100) >= odds) newWaves.push(wave);
-                });
+                for (let i = 0; i < map.waves.length; i++) {
+                    if (newWaves.length >= 5) break;
+                    const wave = map.waves[i];
+                    if (this.utils.pickRandNumInRange(0, 100) >= odds * waveFactor) newWaves.push(wave);
+                }
                 map.waves = newWaves;
             }
         }
@@ -144,16 +148,18 @@ export class Spawns {
     private randomizePMCSpawnChance() {
         const morePMCs = this.modConf.increased_bot_cap == true;
         const veryHighChance = [80, 100];
-        const highChance = [40, 80];
-        const standardChance = morePMCs ? [40, 80] : [30, 70];
+        const highChance = [50, 100];
+        const standardChance = morePMCs ? [50, 90] : [40, 80];
+        const lowerChance = morePMCs ? [40, 80] : [30, 70];
         const pmcConfig = this.configServ.getConfig<IPmcConfig>(ConfigTypes.PMC);
         for (const [key, waves] of Object.entries(pmcConfig.customPmcWaves)) {
             waves.forEach(wave => {
-                
+
                 const odds =
                     key.includes("lab") ? this.utils.pickRandNumInRange(veryHighChance[0], veryHighChance[1]) :
-                    key.includes("factory") ? this.utils.pickRandNumInRange(highChance[0], highChance[1]) :
-                    this.utils.pickRandNumInRange(standardChance[0], standardChance[1]);
+                        key.includes("factory") ? this.utils.pickRandNumInRange(highChance[0], highChance[1]) :
+                            key.includes("interchange") ? this.utils.pickRandNumInRange(lowerChance[0], lowerChance[1]) :
+                                this.utils.pickRandNumInRange(standardChance[0], standardChance[1]);
 
                 wave.BossChance = odds;
                 wave.IgnoreMaxBots = false;
@@ -174,7 +180,7 @@ export class Spawns {
             //this.locationConfig.customWaves.boss = {}; //get rid of extra PMC spawns
 
             this.loadBaseSpawnWaves();
-            this.randomizeRegularBotWaves();
+            this.randomizeScavWaves();
             this.randomizePMCSpawnChance();
 
             //prevents too many bots from spawning

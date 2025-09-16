@@ -1522,8 +1522,8 @@ class Armor {
             serverItem._props.Weight = 0.95;
             this.modifySubArmor(serverItem, tables, validHelmetSlots, 60 * duraModifier, 3 + classModifier, serverItem._props.BluntThroughput, 'Aramid');
         }
-        //Ratnik-BSh Covered 6B47
-        if (serverItem._id === "5aa7cfc0e5b5b00015693143") {
+        //Ratnik-BSh Covered 
+        if (serverItem._id === "5aa7cfc0e5b5b00015693143" || serverItem._id == "6745895717824b1ec20570a6") {
             serverItem._props.Durability = 0;
             serverItem._props.MaxDurability = serverItem._props.Durability;
             serverItem._props.armorClass = 0;
@@ -1835,22 +1835,36 @@ class Armor {
             serverItem._props.Weight = 2.4;
             this.modifySubArmor(serverItem, tables, validHelmetSlots, 150 * duraModifier, 5 + classModifier, serverItem._props.BluntThroughput, 'Aramid');
         }
-        //Team Wendy Exfil Black
-        if (serverItem._id === "5e00c1ad86f774747333222c") {
+        //MTEK Strike
+        if (serverItem._id === "67597ceea35600b4c10cea86" || serverItem._id === "67597d241d5a44f2f605df06") {
             serverItem._props.Durability = 0;
             serverItem._props.MaxDurability = serverItem._props.Durability;
             serverItem._props.armorClass = 0;
-            serverItem._props.speedPenaltyPercent = -1.18;
+            serverItem._props.speedPenaltyPercent = -1;
             serverItem._props.mousePenalty = 0;
-            serverItem._props.weaponErgonomicPenalty = -0.15;
-            serverItem._props.BluntThroughput = 0.195 * bluntModifier;
+            serverItem._props.weaponErgonomicPenalty = -0.1;
+            serverItem._props.BluntThroughput = 0.22 * bluntModifier;
             serverItem._props.DeafStrength = "None";
             serverItem._props.ArmorMaterial = 'UHMWPE';
-            serverItem._props.Weight = 1.18;
-            this.modifySubArmor(serverItem, tables, validHelmetSlots, 55 * duraModifier, 5 + classModifier, serverItem._props.BluntThroughput, 'UHMWPE');
+            serverItem._props.Weight = 0.5;
+            this.modifySubArmor(serverItem, tables, validHelmetSlots, 50 * duraModifier, 5 + classModifier, serverItem._props.BluntThroughput, 'UHMWPE');
         }
-        //Team Wendy Exfil Coyote
-        if (serverItem._id === "5e01ef6886f77445f643baa4") {
+        //MTEK Flux
+        if (serverItem._id === "675956062f6ddfe8ff0e2806" || serverItem._id === "6759655674aa5e0825040d62") {
+            serverItem._props.Durability = 0;
+            serverItem._props.MaxDurability = serverItem._props.Durability;
+            serverItem._props.armorClass = 0;
+            serverItem._props.speedPenaltyPercent = -1;
+            serverItem._props.mousePenalty = 0;
+            serverItem._props.weaponErgonomicPenalty = -0.1;
+            serverItem._props.BluntThroughput = 0.23 * bluntModifier;
+            serverItem._props.DeafStrength = "None";
+            serverItem._props.ArmorMaterial = 'UHMWPE';
+            serverItem._props.Weight = 0.5;
+            this.modifySubArmor(serverItem, tables, validHelmetSlots, 50 * duraModifier, 5 + classModifier, serverItem._props.BluntThroughput, 'UHMWPE');
+        }
+        //Team Wendy Exfil 
+        if (serverItem._id === "5e01ef6886f77445f643baa4" || serverItem._id === "5e00c1ad86f774747333222c") {
             serverItem._props.Durability = 0;
             serverItem._props.MaxDurability = serverItem._props.Durability;
             serverItem._props.armorClass = 0;
