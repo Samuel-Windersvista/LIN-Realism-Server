@@ -291,7 +291,7 @@ export class BotGen extends BotGenerator {
         return bot;
     }
 
-    public myPrepareAndGenerateBot(sessionId: string, botGenerationDetails: IBotGenerationDetails): IBotBase {
+    public async myPrepareAndGenerateBot(sessionId: string, botGenerationDetails: IBotGenerationDetails): Promise<IBotBase> {
         //since spawn changes, bots just keep being generated at regular intervals. Causes stutter. Skip bot gen and return a cached bot.
         if (RaidInfoTracker.generatedBotsCount == 0) this.placeHolderBotCache = [];
         RaidInfoTracker.generatedBotsCount += 1;
@@ -1827,7 +1827,8 @@ export class BotEquipGenHelper extends BotEquipmentModGenerator {
         }
 
         if (!(itemSlot._props.filters[0].Filter.includes(modToAdd[1]._id) || this.itemHelper.isOfBaseclasses(modToAdd[1]._id, itemSlot._props.filters[0].Filter))) {
-            this.logger.error(this.localisationService.getText("bot-mod_not_in_slot_filter_list", { modId: modToAdd[1]._id, modSlot: modSlot, parentName: parentTemplate._name }));
+            //this.logger.error(this.localisationService.getText("bot-mod_not_in_slot_filter_list", { modId: modToAdd[1]._id, modSlot: modSlot, parentName: parentTemplate._name }));
+            //it was spamming errors about 7.62x39 in GP-25 :')
             return false;
         }
 

@@ -287,10 +287,6 @@ class JsonGen {
         // new items properties can be added, and  property values can be replaced, by delcaring them in this if statement
         if (fileItem) {
             // fileItem.HeatFactor = serverItem._props.HeatFactor; You need to give it a value. If you set it to the server item's propety value, the new property will only appear if the server mod has that property
-            fileItem.RecoilDamping = serverItem._props.RecoilDampingHandRotation;
-            fileItem.RecoilHandDamping = serverItem._props.RecoilReturnPathDampingHandRotation;
-            fileItem.OffsetRotation = serverItem._props.RecoilReturnPathOffsetHandRotation;
-            fileItem.RecoilIntensity = serverItem._props.RecoilCategoryMultiplierHandRotation;
             fileItem;
             return fileItem;
         }
@@ -389,13 +385,6 @@ class JsonGen {
     assignJSONToMod(serverItem, fileItem, ID) {
         //new items properties can be added, and  property values can be replaced, by delcaring them in this if statement
         if (fileItem) {
-            // fileItem.HeatFactor = serverItem._props.HeatFactor; You need to give it a value. If you set it to the server item's propety value, the new property will only appear if the server mod has that property
-            //    if(serverItem._props?.Recoil != null){
-            //     fileItem.VerticalRecoil = serverItem._props.Recoil;
-            //     fileItem.HorizontalRecoil = serverItem._props.Recoil;
-            //    }
-            fileItem.Price = 0;
-            fileItem.LoyaltyLevel = 0;
             return fileItem;
         }
         let ItemID = serverItem._id;

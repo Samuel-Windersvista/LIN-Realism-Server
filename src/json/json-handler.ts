@@ -241,6 +241,7 @@ export class ItemStatHandler {
             serverItem._props.DurabilityBurnModificator = fileItem.DurabilityBurnModificator != null ? fileItem.DurabilityBurnModificator : serverItem._props.DurabilityBurnModificator;
             serverItem._props.HeatFactor = fileItem.HeatFactor != null ? fileItem.HeatFactor : serverItem._props.HeatFactor;
             serverItem._props.Damage = fileItem.Damage != null ? fileItem.Damage : serverItem._props.Damage;
+            serverItem._props.BallisticCoeficient = fileItem.BallisticCoeficient != null ? fileItem.BallisticCoeficient : serverItem._props.BallisticCoeficient;
             serverItem._props.ArmorDamage = 1;
             serverItem._props.casingMass = 1;
         }
@@ -258,6 +259,7 @@ export class ItemStatHandler {
 
             this.modifiedItems[fileItem.ItemID] = fileItem;//store the item in an object to be used later for reskins
 
+            if (serverItem._parent == ParentClasses.MAGAZINE) serverItem._props.DropSoundType = "SubMachineGun";
             serverItem._props.Ergonomics = fileItem.Ergonomics != null ? fileItem.Ergonomics : 0;
             serverItem._props.Accuracy = fileItem.Accuracy != null ? fileItem.Accuracy : 0;
             serverItem._props.CenterOfImpact = fileItem.CenterOfImpact != null ? fileItem.CenterOfImpact : 0.05;

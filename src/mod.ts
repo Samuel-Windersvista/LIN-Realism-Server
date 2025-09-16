@@ -247,7 +247,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
 
                             return jsonUtil.serialize(realismInfo);
                         } catch (e) {
-                            logger.error("Realism: Failed to read info file"+ e);
+                            logger.error("Realism: Failed to read info file" + e);
                         }
                     }
                 }
@@ -292,7 +292,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
 
 
             container.afterResolution("BotGenerator", (_t, result: BotGenerator) => {
-                result.prepareAndGenerateBot = (sessionId: string, botGenerationDetails: IBotGenerationDetails): IBotBase => {
+                result.prepareAndGenerateBot = (sessionId: string, botGenerationDetails: IBotGenerationDetails): Promise<IBotBase> => {
                     return botGen.myPrepareAndGenerateBot(sessionId, botGenerationDetails);
                 }
             }, { frequency: "Always" });
@@ -367,7 +367,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                         const utils = Utils.getInstance();
                         const tieredFlea = new TieredFlea(postLoadTables, aKIFleaConf);
                         const player = new Player(logger, postLoadTables, modConfig, medItems, utils);
-                        const maps = new Spawns(logger, postLoadTables, modConfig, postLoadTables.locations, utils);
+                        const maps = new Spawns(logger, configServer, locationConfig, postLoadTables, modConfig, postLoadTables.locations, utils);
                         const quests = new Quests(logger, postLoadTables, modConfig);
                         const randomizeTraderAssort = new RandomizeTraderAssort();
                         const pmcData = profileHelper.getPmcProfile(sessionID);
@@ -415,12 +415,11 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                                 ragfairOfferGenerator.generateFleaOffersForTrader(traderID);
                             }
 
-                            if (modConfig.tiered_flea == true) {
-                                tieredFlea.updateFlea(logger, ragfairOfferGenerator, container, ProfileTracker.averagePlayerLevel);
-                            }
-                            if (modConfig.boss_spawns == true) {
-                                maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
-                            }
+                            if (modConfig.tiered_flea == true) tieredFlea.updateFlea(logger, ragfairOfferGenerator, container, ProfileTracker.averagePlayerLevel);
+
+                            if (modConfig.boss_spawns == true) maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel);
+
+                            if (modConfig.spawn_waves == true) maps.setRegularSpawnWaveChance();
 
                             if (modConfig.logEverything == true) {
                                 logger.info("Realism Mod: Profile Checked");
@@ -552,22 +551,6 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                                 botLoader.updateBots(pmcData, logger, modConfig, botLoader, utils);
                             }
 
-                            if (!ModTracker.swagPresent && !ModTracker.qtbSpawnsActive) {
-                                pmcConf.convertIntoPmcChance.laboratory = {
-                                    "assault":
-                                    {
-                                        "min": 100,
-                                        "max": 100
-                                    },
-                                    "pmcbot":
-                                    {
-                                        "min": 0,
-                                        "max": 0
-                                    }
-
-                                };
-                            }
-
                             logger.warning("Avg. Player Level = " + ProfileTracker.averagePlayerLevel);
                             logger.warning("Map Name = " + matchInfo.location);
                             logger.warning("Map Type  = " + mapType);
@@ -608,7 +591,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                         const profileData = profileHelper.getFullProfile(sessionID)
                         const quests = new Quests(logger, postLoadTables, modConfig);
                         const seeasonalEventConfig = container.resolve<ConfigServer>("ConfigServer").getConfig<ISeasonalEventConfig>(ConfigTypes.SEASONAL_EVENT);
-                        const maps = new Spawns(logger, postLoadTables, modConfig, postLoadTables.locations, utils);
+                        const maps = new Spawns(logger, configServer, locationConfig, postLoadTables, modConfig, postLoadTables.locations, utils);
 
                         //had a concern that bot loot cache isn't being reset properly since I've overriden it with my own implementation, so to be safe...
                         // const myGetLootCache = new MyLootCache(logger, jsonUtil, itemHelper, postLoadDBServer, pmcLootGenerator, localisationService, ragfairPriceService);
@@ -623,7 +606,9 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
 
                             if (modConfig.enable_hazard_zones) quests.resetRepeatableQuests(profileData);
 
-                            if (modConfig.boss_spawns == true) maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
+                            if (modConfig.boss_spawns == true) maps.setBossSpawnChance(ProfileTracker.averagePlayerLevel);
+
+                            if (modConfig.spawn_waves == true) maps.setRegularSpawnWaveChance();
 
                             if (modConfig.loot_changes) this.modifyMapLoot(locationConfig, RaidInfoTracker.mapName, info, pmcData, sessionID, utils, logger);
 
@@ -733,18 +718,17 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
         const fleaChangesPreDB = new FleaChangesPreDBLoad(logger, aKIFleaConf, modConfig);
         const quests = new Quests(logger, tables, modConfig);
         const traders = new Traders(logger, tables, modConfig, traderConf, utils);
-        const maps = new Spawns(logger, tables, modConfig, tables.locations, utils);
+        const maps = new Spawns(logger, configServer, locationConfig, tables, modConfig, tables.locations, utils);
         const gear = new Gear(tables, logger, modConfig);
         const itemCloning = new ItemCloning(logger, tables, modConfig, jsonUtil, medItems, crafts);
         const statHandler = ItemStatHandler.getInstance(tables, logger, hashUtil);
         const descGen = new DescriptionGen(tables, modConfig, logger, statHandler);
 
         //Remember to back up json data before using this, and make sure it isn't overriding existing json objects
-        // jsonGen.attTemplatesCodeGen();
-        // jsonGen.weapTemplatesCodeGen();
-        // jsonGen.gearTemplatesCodeGen();
-        // jsonGen.ammoTemplatesCodeGen();
-        // jsonGen.genArmorMods();
+        //jsonGen.attTemplatesCodeGen();
+        //jsonGen.weapTemplatesCodeGen();
+        //jsonGen.gearTemplatesCodeGen();
+        //jsonGen.ammoTemplatesCodeGen();
 
         this.checkForSeasonalEvents(logger, seasonalEventsService, seeasonalEventConfig, weatherConfig, true);
 
@@ -772,11 +756,12 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             botLoader.setBotHealth();
         }
 
-        if (modConfig.open_zones_fix == true && !ModTracker.swagPresent) {
-            maps.openZonesFix();
-        }
+        //either no longer needed or doesn't account for new spawn systen and locations
+        // if (modConfig.open_zones_fix == true && !ModTracker.swagPresent) {
+        //     maps.openZonesFix();
+        // }
 
-        maps.loadSpawnChanges(locationConfig);
+        maps.loadSpawnChangesOnStartup();
 
         if (modConfig.bot_changes == true && ModTracker.alpPresent == false) {
             botLoader.loadBots();

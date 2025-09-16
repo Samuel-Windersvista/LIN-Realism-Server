@@ -216,7 +216,7 @@ class ItemCloning {
         const radSampleId = "66fd57171f981640e667fbe2";
         this.cloneGenericItem("5c05308086f7746b2101e90b", radSampleId, "orange", "assets/content/items/quest/item_quest_chemcontainer/item_quest_chemcontainer.bundle");
         this.addToHandbook(radSampleId, "5b47574386f77428ca22b2ef", 300000);
-        this.addToLocale(radSampleId, "Sample of Radiological Material", "Rad. Sample", "A sample of an unknown radiologicaassets/content/items/quest/item_quest_container_carbon_case/item_quest_container_carbon_case.bundlel materials being used for God knows what. Incredibly valuable to those with loose morals or a death wish.");
+        this.addToLocale(radSampleId, "Sample of Radiological Material", "Rad. Sample", "A sample of an unknown radiological material being used for God knows what. Incredibly valuable to those with loose morals or a death wish.");
         const radSample = this.itemDB()[radSampleId];
         radSample._props.Height = 2;
         radSample._props.Width = 1;

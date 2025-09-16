@@ -57,8 +57,7 @@ class BotLootGen extends BotLootGenerator_1.BotLootGenerator {
         const jsonUtil = tsyringe_1.container.resolve("JsonUtil");
         const pmcLootGenerator = tsyringe_1.container.resolve("PMCLootGenerator");
         const ragfairPriceService = tsyringe_1.container.resolve("RagfairPriceService");
-        const databaseServer = tsyringe_1.container.resolve("DatabaseServer");
-        const myGetLootCache = new MyLootCacheService(this.logger, this.itemHelper, databaseServer, pmcLootGenerator, this.localisationService, ragfairPriceService, this.cloner);
+        const myGetLootCache = new MyLootCacheService(this.logger, this.itemHelper, pmcLootGenerator, this.localisationService, ragfairPriceService, this.cloner);
         const itemCounts = botJsonTemplate.generation.items;
         if (!itemCounts.backpackLoot.weights || !itemCounts.pocketLoot.weights
             || !itemCounts.vestLoot.weights || !itemCounts.specialItems.weights

@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Main = void 0;
 const ConfigTypes_1 = require("C:/snapshot/project/obj/models/enums/ConfigTypes");
@@ -242,7 +252,7 @@ class Main {
                     const utils = utils_1.Utils.getInstance();
                     const tieredFlea = new fleamarket_1.TieredFlea(postLoadTables, aKIFleaConf);
                     const player = new player_1.Player(logger, postLoadTables, modConfig, medItems, utils);
-                    const maps = new spawns_1.Spawns(logger, postLoadTables, modConfig, postLoadTables.locations, utils);
+                    const maps = new spawns_1.Spawns(logger, configServer, locationConfig, postLoadTables, modConfig, postLoadTables.locations, utils);
                     const quests = new quests_1.Quests(logger, postLoadTables, modConfig);
                     const randomizeTraderAssort = new traders_1.RandomizeTraderAssort();
                     const pmcData = profileHelper.getPmcProfile(sessionID);
@@ -286,12 +296,12 @@ class Main {
                         for (let traderID of traders) {
                             ragfairOfferGenerator.generateFleaOffersForTrader(traderID);
                         }
-                        if (modConfig.tiered_flea == true) {
+                        if (modConfig.tiered_flea == true)
                             tieredFlea.updateFlea(logger, ragfairOfferGenerator, container, utils_1.ProfileTracker.averagePlayerLevel);
-                        }
-                        if (modConfig.boss_spawns == true) {
-                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
-                        }
+                        if (modConfig.boss_spawns == true)
+                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel);
+                        if (modConfig.spawn_waves == true)
+                            maps.setRegularSpawnWaveChance();
                         if (modConfig.logEverything == true) {
                             logger.info("Realism Mod: Profile Checked");
                         }
@@ -392,18 +402,6 @@ class Main {
                         if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
                             botLoader.updateBots(pmcData, logger, modConfig, botLoader, utils);
                         }
-                        if (!utils_1.ModTracker.swagPresent && !utils_1.ModTracker.qtbSpawnsActive) {
-                            pmcConf.convertIntoPmcChance.laboratory = {
-                                "assault": {
-                                    "min": 100,
-                                    "max": 100
-                                },
-                                "pmcbot": {
-                                    "min": 0,
-                                    "max": 0
-                                }
-                            };
-                        }
                         logger.warning("Avg. Player Level = " + utils_1.ProfileTracker.averagePlayerLevel);
                         logger.warning("Map Name = " + matchInfo.location);
                         logger.warning("Map Type  = " + mapType);
@@ -439,7 +437,7 @@ class Main {
                     const profileData = profileHelper.getFullProfile(sessionID);
                     const quests = new quests_1.Quests(logger, postLoadTables, modConfig);
                     const seeasonalEventConfig = container.resolve("ConfigServer").getConfig(ConfigTypes_1.ConfigTypes.SEASONAL_EVENT);
-                    const maps = new spawns_1.Spawns(logger, postLoadTables, modConfig, postLoadTables.locations, utils);
+                    const maps = new spawns_1.Spawns(logger, configServer, locationConfig, postLoadTables, modConfig, postLoadTables.locations, utils);
                     //had a concern that bot loot cache isn't being reset properly since I've overriden it with my own implementation, so to be safe...
                     // const myGetLootCache = new MyLootCache(logger, jsonUtil, itemHelper, postLoadDBServer, pmcLootGenerator, localisationService, ragfairPriceService);
                     // myGetLootCache.myClearCache();
@@ -452,7 +450,9 @@ class Main {
                         if (modConfig.enable_hazard_zones)
                             quests.resetRepeatableQuests(profileData);
                         if (modConfig.boss_spawns == true)
-                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel, databaseService, seeasonalEventConfig);
+                            maps.setBossSpawnChance(utils_1.ProfileTracker.averagePlayerLevel);
+                        if (modConfig.spawn_waves == true)
+                            maps.setRegularSpawnWaveChance();
                         if (modConfig.loot_changes)
                             this.modifyMapLoot(locationConfig, utils_1.RaidInfoTracker.mapName, info, pmcData, sessionID, utils, logger);
                         this.checkEventQuests(pmcData);
@@ -546,17 +546,16 @@ class Main {
         const fleaChangesPreDB = new fleamarket_1.FleaChangesPreDBLoad(logger, aKIFleaConf, modConfig);
         const quests = new quests_1.Quests(logger, tables, modConfig);
         const traders = new traders_1.Traders(logger, tables, modConfig, traderConf, utils);
-        const maps = new spawns_1.Spawns(logger, tables, modConfig, tables.locations, utils);
+        const maps = new spawns_1.Spawns(logger, configServer, locationConfig, tables, modConfig, tables.locations, utils);
         const gear = new gear_1.Gear(tables, logger, modConfig);
         const itemCloning = new item_cloning_1.ItemCloning(logger, tables, modConfig, jsonUtil, medItems, crafts);
         const statHandler = json_handler_1.ItemStatHandler.getInstance(tables, logger, hashUtil);
         const descGen = new description_gen_1.DescriptionGen(tables, modConfig, logger, statHandler);
         //Remember to back up json data before using this, and make sure it isn't overriding existing json objects
-        // jsonGen.attTemplatesCodeGen();
-        // jsonGen.weapTemplatesCodeGen();
-        // jsonGen.gearTemplatesCodeGen();
-        // jsonGen.ammoTemplatesCodeGen();
-        // jsonGen.genArmorMods();
+        //jsonGen.attTemplatesCodeGen();
+        //jsonGen.weapTemplatesCodeGen();
+        //jsonGen.gearTemplatesCodeGen();
+        //jsonGen.ammoTemplatesCodeGen();
         this.checkForSeasonalEvents(logger, seasonalEventsService, seeasonalEventConfig, weatherConfig, true);
         if (modConfig.enable_hazard_zones) {
             quests.loadHazardQuests();
@@ -577,10 +576,11 @@ class Main {
             itemCloning.createCustomPlates();
             botLoader.setBotHealth();
         }
-        if (modConfig.open_zones_fix == true && !utils_1.ModTracker.swagPresent) {
-            maps.openZonesFix();
-        }
-        maps.loadSpawnChanges(locationConfig);
+        //either no longer needed or doesn't account for new spawn systen and locations
+        // if (modConfig.open_zones_fix == true && !ModTracker.swagPresent) {
+        //     maps.openZonesFix();
+        // }
+        maps.loadSpawnChangesOnStartup();
         if (modConfig.bot_changes == true && utils_1.ModTracker.alpPresent == false) {
             botLoader.loadBots();
         }

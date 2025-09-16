@@ -478,5 +478,29 @@
         "speedPenaltyPercent": -1.5,
         "mousePenalty": 0,
         "weaponErgonomicPenalty": 0
+    },
+    "674da107c512807d1a0e7436": {
+        "$type": "RealismMod.Gear, RealismMod",
+        "ItemID": "674da107c512807d1a0e7436",
+        "Name": "terraframe",
+        "AllowADS": true,
+        "LoyaltyLevel": 2,
+        "ReloadSpeedMulti": 1,
+        "Comfort": 1.1,
+        "speedPenaltyPercent": -3,
+        "mousePenalty": 0,
+        "weaponErgonomicPenalty": 0
+    },
+    "674da9cf0cb4bcde7103c07b": {
+        "$type": "RealismMod.Gear, RealismMod",
+        "ItemID": "674da9cf0cb4bcde7103c07b",
+        "Name": "terraframe_christmass",
+        "AllowADS": true,
+        "LoyaltyLevel": 2,
+        "ReloadSpeedMulti": 1,
+        "Comfort": 1.15,
+        "speedPenaltyPercent": -4.5,
+        "mousePenalty": 0,
+        "weaponErgonomicPenalty": 0
     }
 }
