@@ -263,7 +263,8 @@
         "CanSpall": false,
         "SpallReduction": 1,
         "ReloadSpeedMulti": 1,
-        "BlocksMouth": true
+        "BlocksMouth": true,
+        "MaskToUse": "trooper"
     },
     "5f60c076f2bcbb675b00dac2": {
         "$type": "RealismMod.Gear, RealismMod",
