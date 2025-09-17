@@ -83,6 +83,34 @@
         "LoyaltyLevel": 4,
         "BasePriceModifier": 1
     },
+    "686e90abd63bee9a05dcf5db": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "686e90abd63bee9a05dcf5db",
+        "Name": "patron_50_bmg_hp",
+        "LoyaltyLevel": 5,
+        "BasePriceModifier": 3
+    },
+    "686e926498b323bfbbe1fc7c": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "686e926498b323bfbbe1fc7c",
+        "Name": "patron_50_m21",
+        "LoyaltyLevel": 5,
+        "BasePriceModifier": 2.5
+    },
+    "686e93d861bcbeca0b805201": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "686e93d861bcbeca0b805201",
+        "Name": "patron_50_m33",
+        "LoyaltyLevel": 4,
+        "BasePriceModifier": 2
+    },
+    "686e959752397d5b3485ad75": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "686e959752397d5b3485ad75",
+        "Name": "patron_50_slaap",
+        "LoyaltyLevel": 5,
+        "BasePriceModifier": 4
+    },
     "5cadf6ddae9215051e1c23b2": {
         "$type": "RealismMod.Ammo, RealismMod",
         "ItemID": "5cadf6ddae9215051e1c23b2",
@@ -256,6 +284,27 @@
         "ItemID": "5d6e6a53a4b9361bd473feec",
         "Name": "patron_20x70_slug_poleva_3",
         "LoyaltyLevel": 1,
+        "BasePriceModifier": 1
+    },
+    "660137ef76c1b56143052be8": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "660137ef76c1b56143052be8",
+        "Name": "patron_20x70_dangerous_game",
+        "LoyaltyLevel": 1,
+        "BasePriceModifier": 1
+    },
+    "660137d8481cc6907a0c5cda": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "660137d8481cc6907a0c5cda",
+        "Name": "patron_20x70_ap",
+        "LoyaltyLevel": 2,
+        "BasePriceModifier": 1
+    },
+    "6601380580e77cfd080e3418": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "6601380580e77cfd080e3418",
+        "Name": "patron_20x70_flechette",
+        "LoyaltyLevel": 2,
         "BasePriceModifier": 1
     },
     "5d6e6a42a4b9364f07165f52": {
@@ -815,22 +864,29 @@
         "$type": "RealismMod.Ammo, RealismMod",
         "ItemID": "5a6086ea4f39f99cd479502f",
         "Name": "patron_762x51_M61",
-        "LoyaltyLevel": 5,
+        "LoyaltyLevel": 4,
         "BasePriceModifier": 1
     },
     "5a608bf24f39f98ffc77720e": {
         "$type": "RealismMod.Ammo, RealismMod",
         "ItemID": "5a608bf24f39f98ffc77720e",
         "Name": "patron_762x51_M62",
-        "LoyaltyLevel": 4,
+        "LoyaltyLevel": 3,
         "BasePriceModifier": 1
     },
     "58dd3ad986f77403051cba8f": {
         "$type": "RealismMod.Ammo, RealismMod",
         "ItemID": "58dd3ad986f77403051cba8f",
         "Name": "patron_762x51_M80",
-        "LoyaltyLevel": 4,
+        "LoyaltyLevel": 3,
         "BasePriceModifier": 1
+    },
+    "6768c25aa7b238f14a08d3f6": {
+        "$type": "RealismMod.Ammo, RealismMod",
+        "ItemID": "6768c25aa7b238f14a08d3f6",
+        "Name": "patron_762x51_M80A1",
+        "LoyaltyLevel": 5,
+        "BasePriceModifier": 2
     },
     "5e023e53d4353e3302577c4c": {
         "$type": "RealismMod.Ammo, RealismMod",
