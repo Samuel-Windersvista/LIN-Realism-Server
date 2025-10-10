@@ -197,7 +197,8 @@ class BotLoader {
         this.botConf().equipment["pmc"].filterPlatesByLevel = true;
     }
     adjustPlayerScavs() {
-        this.botConf().playerScavBrainType = pmcTypes.playerScavBrainType;
+        if (this.modConfig.pmc_types)
+            this.botConf().playerScavBrainType = pmcTypes.playerScavBrainType;
         this.botConf().chanceAssaultScavHasPlayerScavName = 0;
     }
     addGasMaskFilters(mods) {
@@ -1748,10 +1749,10 @@ class BotLoader {
         }
     }
     addOptionalGasMasks(botJsonTemplate) {
-        if (utils_1.ModTracker.tgcPresent) {
-            botJsonTemplate.inventory.equipment.FaceCover["672e2e756803734b60f5ac1e"] = 1;
-            botJsonTemplate.inventory.equipment.FaceCover["672e2e7517018293d11bbdc1"] = 1;
-        }
+        // if (ModTracker.tgcPresent) {
+        //     botJsonTemplate.inventory.equipment.FaceCover["672e2e756803734b60f5ac1e"] = 1;
+        //     botJsonTemplate.inventory.equipment.FaceCover["672e2e7517018293d11bbdc1"] = 1;
+        // }
         if (this.modConfig.enable_hazard_zones) {
             botJsonTemplate.inventory.equipment.FaceCover["67a13809c3bc1e2fa47e6eec"] = 1;
         }
