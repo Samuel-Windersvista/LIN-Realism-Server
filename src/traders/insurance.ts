@@ -42,8 +42,8 @@ export class InsuranceOverride extends InsuranceController {
             // Update the insured items to have the new root parent ID for root/orphaned items
             insured.items = this.itemHelper.adoptOrphanedItems(rootItemParentID, insured.items);
 
-            const simulateItemsBeingTaken = this.insuranceConfig.simulateItemsBeingTaken;
-            if (insured.traderId != theraId && simulateItemsBeingTaken) {
+            const simulateItemsBeiTaken = this.insuranceConfig.simulateItemsBeiTaken;
+            if (insured.traderId != theraId && simulateItemsBeiTaken) {
                 // Find items that could be taken by another player off the players body
                 const itemsToDelete = this.findItemsToDelete(rootItemParentID, insured);
 

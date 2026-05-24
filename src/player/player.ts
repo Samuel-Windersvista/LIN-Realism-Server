@@ -289,8 +289,8 @@ export class Player {
             const mult = 1.136
 
             effects.Wound.WorkingTime = 3600;
-            this.debuffMul(effects.Wound.ThresholdMin, mult);
-            this.debuffMul(effects.Wound.ThresholdMax, mult);
+            this.debuffMul(effects.Wound, 'ThresholdMin', mult);
+            this.debuffMul(effects.Wound, 'ThresholdMax', mult);
 
             effects.LightBleeding.HealthLoopTime = 8;
             effects.LightBleeding.DamageHealth = 0.65;
@@ -302,12 +302,12 @@ export class Player {
             effects.Fracture.BulletHitProbability.Threshold /= mult
             effects.Fracture.BulletHitProbability.K *= Math.sqrt(mult)
 
-            this.debuffMul(effects.Fracture.FallingProbability, 0.85);
-            this.debuffMul(effects.HeavyBleeding.Probability, 1.55);
-            this.debuffMul(effects.LightBleeding.Probability, 2.1);
-            this.debuffMul(effects.Wound.ThresholdMax, mult);
-            this.debuffMul(effects.Wound.ThresholdMin, mult);
-            this.debuffMul(effects.LowEdgeHealth.StartCommonHealth, 1.2);
+            this.debuffMul(effects.Fracture, 'FallingProbability', 0.85);
+            this.debuffMul(effects.HeavyBleeding, 'Probability', 1.55);
+            this.debuffMul(effects.LightBleeding, 'Probability', 2.1);
+            this.debuffMul(effects.Wound, 'ThresholdMax', mult);
+            this.debuffMul(effects.Wound, 'ThresholdMin', mult);
+            this.debuffMul(effects.LowEdgeHealth, 'StartCommonHealth', 1.2);
         }
 
         if (this.modConfig.logEverything == true) {
@@ -315,12 +315,12 @@ export class Player {
         }
     }
 
-    private debuffMul(buff, mult) {
-        if (buff?.Threshold != null) {
-            buff.Threshold /= mult;
-            buff.K *= mult;
-        } else if (buff?.Threshold == null) {
-            buff *= mult;
+    private debuffMul(param, propertyName, mult) {
+        if (param[propertyName]?.Threshold != null) {
+            param[propertyName].Threshold /= mult;
+            param[propertyName].K *= mult;
+        } else if (param[propertyName]?.Threshold == null) {
+            param[propertyName] *= mult;
         }
     }
 
@@ -340,18 +340,16 @@ export class Player {
     }
 
     private setArmorDuabaility(invItem: IItem) {
-        for (let i in this.tables.templates.items) {
-            let serverItem = this.tables.templates.items[i];
-            if (invItem._tpl === this.tables.templates.items[i]._id
-                && invItem?.upd?.Repairable != null
-                && (serverItem._parent === ParentClasses.ARMORVEST
-                    || serverItem._parent === ParentClasses.ARMOREDEQUIPMENT
-                    || serverItem._parent === ParentClasses.HEADWEAR
-                    || serverItem._parent === ParentClasses.CHESTRIG)
-            ) {
-                invItem.upd.Repairable.Durability = this.tables.templates.items[i]._props.Durability;
-                invItem.upd.Repairable.MaxDurability = this.tables.templates.items[i]._props.Durability;
-            }
+        const templateItem = this.tables.templates.items[invItem._tpl];
+        if (templateItem
+            && invItem?.upd?.Repairable != null
+            && (templateItem._parent === ParentClasses.ARMORVEST
+                || templateItem._parent === ParentClasses.ARMOREDEQUIPMENT
+                || templateItem._parent === ParentClasses.HEADWEAR
+                || templateItem._parent === ParentClasses.CHESTRIG)
+        ) {
+            invItem.upd.Repairable.Durability = templateItem._props.Durability;
+            invItem.upd.Repairable.MaxDurability = templateItem._props.MaxDurability;
         }
     }
 }

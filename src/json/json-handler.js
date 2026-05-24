@@ -216,8 +216,8 @@ class ItemStatHandler {
             serverItem._props.HeatFactor = fileItem.HeatFactor != null ? fileItem.HeatFactor : serverItem._props.HeatFactor;
             serverItem._props.Damage = fileItem.Damage != null ? fileItem.Damage : serverItem._props.Damage;
             serverItem._props.BallisticCoeficient = fileItem.BallisticCoeficient != null ? fileItem.BallisticCoeficient : serverItem._props.BallisticCoeficient;
-            serverItem._props.ArmorDamage = 1;
-            serverItem._props.casingMass = 1;
+            serverItem._props.ArmorDamage = fileItem.ArmorDamage != null ? fileItem.ArmorDamage : serverItem._props.ArmorDamage;
+            serverItem._props.casingMass = fileItem.casingMass != null ? fileItem.casingMass : serverItem._props.casingMass;
         }
     }
     modPusherHelper(fileItem, serverTemplates) {

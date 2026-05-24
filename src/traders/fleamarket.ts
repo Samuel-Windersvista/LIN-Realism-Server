@@ -702,6 +702,7 @@ export class TieredFlea {
             serverItem._props.CanSellOnRagfair = false;
         }
         else if (serverItem._parent === ParentClasses.IRON_SIGHTS) {
+            serverItem._props.CanSellOnRagfair = bool;
         }
     }
 

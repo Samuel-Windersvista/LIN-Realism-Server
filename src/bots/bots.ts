@@ -1145,26 +1145,54 @@ export class BotLoader {
         }
     }
 
+    /**
+     * Applies common PMC tier loadout property assignment and configuration
+     * shared across usecLoad1-4 and bearLoad1-4.
+     * Handles basic inventory/chances/appearance setup, bot loot changes,
+     * key additions, and dynamic loot overrides.
+     * Night vision, map-type weapon selection, hazard zone, and reserve base
+     * adjustments are handled by the calling method.
+     */
+    private applyPmcTierLoadout(bot: IBotType, tierJson: any, options: { ammo: any; voice: any; lootOddsData: any; keysName: string }) {
+
+        bot.inventory.Ammo = options.ammo;
+        bot.inventory.equipment = tierJson.inventory.equipment;
+        bot.inventory.mods = tierJson.inventory.mods;
+        bot.chances = tierJson.chances;
+        bot.appearance.body = tierJson.appearance.body;
+        bot.appearance.feet = tierJson.appearance.feet;
+        bot.appearance.voice = options.voice;
+        bot.experience.level = tierJson.experience.level;
+
+        if (this.modConfig.bot_loot_changes === true) {
+            bot.inventory.items = tierJson.inventory.items;
+            bot.generation = options.lootOddsData;
+        }
+
+        if (this.modConfig.add_keys === true) {
+            bot.inventory.items.Backpack = { ...bot.inventory.items.Backpack, ...keys[options.keysName] };
+        }
+
+        if (this.modConfig.dynamic_loot_pmcs === true) {
+            bot.inventory.items = tierJson.inventory.dynamic_looting;
+            bot.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
+            bot.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
+            bot.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
+            bot.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
+            bot.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
+        }
+    }
+
     public usecLoad1(botJsonTemplate: IBotType) {
 
         let tier1Json = JSON.parse(JSON.stringify(usecLO.usecLO1));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier1USEC } : { ...vanillaAmmo.Tier1USEC };
-        botJsonTemplate.inventory.equipment = tier1Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier1Json.inventory.mods;
-        botJsonTemplate.chances = tier1Json.chances;
-        botJsonTemplate.appearance.body = tier1Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier1Json.appearance.feet;
-        botJsonTemplate.appearance.voice = { ...usecLO.appearance.voice };
-        botJsonTemplate.experience.level = tier1Json.experience.level;
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier1Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier1 };
-        }
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier1_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier1Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier1USEC } : { ...vanillaAmmo.Tier1USEC },
+            voice: { ...usecLO.appearance.voice },
+            lootOddsData: { ...lootOdds.tier1 },
+            keysName: "tier1_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight) {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 20;
@@ -1194,15 +1222,6 @@ export class BotLoader {
             }
         }
 
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier1Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
-        }
-
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
             botJsonTemplate.chances.equipmentMods.mod_equipment = 0;
             botJsonTemplate.chances.equipmentMods.mod_equipment_000 = 0;
@@ -1228,22 +1247,12 @@ export class BotLoader {
 
         let tier2Json = JSON.parse(JSON.stringify(usecLO.usecLO2));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier2USEC } : { ...vanillaAmmo.Tier2USEC };
-        botJsonTemplate.inventory.equipment = tier2Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier2Json.inventory.mods;
-        botJsonTemplate.chances = tier2Json.chances;
-        botJsonTemplate.appearance.body = tier2Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier2Json.appearance.feet;
-        botJsonTemplate.appearance.voice = { ...usecLO.appearance.voice };
-        botJsonTemplate.experience.level = tier2Json.experience.level;
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier2Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier2 };
-        }
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier2_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier2Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier2USEC } : { ...vanillaAmmo.Tier2USEC },
+            voice: { ...usecLO.appearance.voice },
+            lootOddsData: { ...lootOdds.tier2 },
+            keysName: "tier2_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight || RaidInfoTracker.mapName === "factory4_night") {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 50;
@@ -1282,15 +1291,6 @@ export class BotLoader {
             botJsonTemplate.inventory.equipment.FirstPrimaryWeapon = tier2Json.inventory.FirstPrimaryWeapon_outdoor;
         }
 
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier2Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
-        }
-
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
             botJsonTemplate.chances.equipmentMods.mod_equipment = 0;
             botJsonTemplate.chances.equipmentMods.mod_equipment_000 = 0;
@@ -1317,22 +1317,12 @@ export class BotLoader {
 
         let tier3Json = JSON.parse(JSON.stringify(usecLO.usecLO3));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier3USEC } : { ...vanillaAmmo.Tier3USEC };
-        botJsonTemplate.inventory.equipment = tier3Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier3Json.inventory.mods;
-        botJsonTemplate.chances = tier3Json.chances;
-        botJsonTemplate.appearance.body = tier3Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier3Json.appearance.feet;
-        botJsonTemplate.appearance.voice = { ...usecLO.appearance.voice };
-        botJsonTemplate.experience.level = tier3Json.experience.level;
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier3Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier3 };
-        }
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier3_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier3Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier3USEC } : { ...vanillaAmmo.Tier3USEC },
+            voice: { ...usecLO.appearance.voice },
+            lootOddsData: { ...lootOdds.tier3 },
+            keysName: "tier3_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight) {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 65;
@@ -1380,15 +1370,6 @@ export class BotLoader {
             botJsonTemplate.inventory.equipment.FirstPrimaryWeapon = tier3Json.inventory.FirstPrimaryWeapon_outdoor;
         }
 
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier3Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
-        }
-
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
             botJsonTemplate.chances.equipmentMods.mod_equipment = 0;
             botJsonTemplate.chances.equipmentMods.mod_equipment_000 = 0;
@@ -1416,23 +1397,12 @@ export class BotLoader {
 
         let tier4Json = JSON.parse(JSON.stringify(usecLO.usecLO4));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier4USEC } : { ...vanillaAmmo.Tier4USEC };
-        botJsonTemplate.inventory.equipment = tier4Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier4Json.inventory.mods;
-        botJsonTemplate.chances = tier4Json.chances;
-        botJsonTemplate.appearance.body = tier4Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier4Json.appearance.feet;
-        botJsonTemplate.appearance.voice = { ...usecLO.appearance.voice };
-        botJsonTemplate.experience.level = tier4Json.experience.level;
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier4Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier4 };
-        }
-
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier4_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier4Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier4USEC } : { ...vanillaAmmo.Tier4USEC },
+            voice: { ...usecLO.appearance.voice },
+            lootOddsData: { ...lootOdds.tier4 },
+            keysName: "tier4_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight || RaidInfoTracker.mapName === "factory4_night") {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 100;
@@ -1471,15 +1441,6 @@ export class BotLoader {
         }
         if (RaidInfoTracker.mapType == MapType.Outdoor) {
             botJsonTemplate.inventory.equipment.FirstPrimaryWeapon = tier4Json.inventory.FirstPrimaryWeapon_outdoor;
-        }
-
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier4Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
         }
 
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
@@ -1543,23 +1504,12 @@ export class BotLoader {
 
         let tier1Json = JSON.parse(JSON.stringify(bearLO.bearLO1));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier1Bear } : { ...vanillaAmmo.Tier1Bear };
-        botJsonTemplate.inventory.equipment = tier1Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier1Json.inventory.mods;
-        botJsonTemplate.chances = tier1Json.chances;
-        botJsonTemplate.appearance.body = tier1Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier1Json.appearance.feet;
-        botJsonTemplate.experience.level = tier1Json.experience.level;
-        botJsonTemplate.appearance.voice = { ...bearLO.LowTierVoice };
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier1Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier1 };
-        }
-
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier1_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier1Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier1Bear } : { ...vanillaAmmo.Tier1Bear },
+            voice: { ...bearLO.LowTierVoice },
+            lootOddsData: { ...lootOdds.tier1 },
+            keysName: "tier1_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight) {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 20;
@@ -1588,15 +1538,6 @@ export class BotLoader {
             }
         }
 
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier1Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
-        }
-
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
             botJsonTemplate.inventory.equipment.FaceCover = { ...bearLO.FaceCoverLabs };
             botJsonTemplate.chances.equipmentMods.mod_equipment = 0;
@@ -1622,23 +1563,12 @@ export class BotLoader {
 
         let tier2Json = JSON.parse(JSON.stringify(bearLO.bearLO2));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier2Bear } : { ...vanillaAmmo.Tier2Bear };
-        botJsonTemplate.inventory.equipment = tier2Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier2Json.inventory.mods;
-        botJsonTemplate.chances = tier2Json.chances;
-        botJsonTemplate.appearance.body = tier2Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier2Json.appearance.feet;
-        botJsonTemplate.experience.level = tier2Json.experience.level;
-        botJsonTemplate.appearance.voice = { ...bearLO.LowTierVoice };
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier2Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier2 };
-        }
-
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier2_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier2Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier2Bear } : { ...vanillaAmmo.Tier2Bear },
+            voice: { ...bearLO.LowTierVoice },
+            lootOddsData: { ...lootOdds.tier2 },
+            keysName: "tier2_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight || RaidInfoTracker.mapName === "factory4_night") {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 50;
@@ -1675,15 +1605,6 @@ export class BotLoader {
             botJsonTemplate.inventory.equipment.FirstPrimaryWeapon = tier2Json.inventory.FirstPrimaryWeapon_outdoor;
         }
 
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier2Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
-        }
-
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
             botJsonTemplate.inventory.equipment.FaceCover = { ...bearLO.FaceCoverLabs };
             botJsonTemplate.chances.equipmentMods.mod_equipment = 0;
@@ -1710,23 +1631,12 @@ export class BotLoader {
 
         let tier3Json = JSON.parse(JSON.stringify(bearLO.bearLO3));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier3Bear } : { ...vanillaAmmo.Tier3Bear };
-        botJsonTemplate.inventory.equipment = tier3Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier3Json.inventory.mods;
-        botJsonTemplate.chances = tier3Json.chances;
-        botJsonTemplate.appearance.body = tier3Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier3Json.appearance.feet;
-        botJsonTemplate.experience.level = tier3Json.experience.level;
-        botJsonTemplate.appearance.voice = { ...bearLO.HighTierVoice };
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier3Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier3 };
-        }
-
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier3_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier3Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier3Bear } : { ...vanillaAmmo.Tier3Bear },
+            voice: { ...bearLO.HighTierVoice },
+            lootOddsData: { ...lootOdds.tier3 },
+            keysName: "tier3_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight) {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 65;
@@ -1767,15 +1677,6 @@ export class BotLoader {
             botJsonTemplate.inventory.equipment.FirstPrimaryWeapon = tier3Json.inventory.FirstPrimaryWeapon_outdoor;
         }
 
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier3Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
-        }
-
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
             botJsonTemplate.chances.equipmentMods.mod_equipment = 0;
             botJsonTemplate.chances.equipmentMods.mod_equipment_000 = 0;
@@ -1803,23 +1704,12 @@ export class BotLoader {
 
         let tier4Json = JSON.parse(JSON.stringify(bearLO.bearLO4));
 
-        botJsonTemplate.inventory.Ammo = this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier4Bear } : { ...vanillaAmmo.Tier4Bear };
-        botJsonTemplate.inventory.equipment = tier4Json.inventory.equipment;
-        botJsonTemplate.inventory.mods = tier4Json.inventory.mods;
-        botJsonTemplate.chances = tier4Json.chances;
-        botJsonTemplate.appearance.body = tier4Json.appearance.body;
-        botJsonTemplate.appearance.feet = tier4Json.appearance.feet;
-        botJsonTemplate.experience.level = tier4Json.experience.level;
-        botJsonTemplate.appearance.voice = { ...bearLO.HighTierVoice };
-
-        if (this.modConfig.bot_loot_changes === true) {
-            botJsonTemplate.inventory.items = tier4Json.inventory.items;
-            botJsonTemplate.generation = { ...lootOdds.tier4 };
-        }
-
-        if (this.modConfig.add_keys === true) {
-            botJsonTemplate.inventory.items.Backpack = { ...botJsonTemplate.inventory.items.Backpack, ...keys.tier4_PMC_Keys };
-        }
+        this.applyPmcTierLoadout(botJsonTemplate, tier4Json, {
+            ammo: this.modConfig.realistic_ballistics == true ? { ...realismAmmo.Tier4Bear } : { ...vanillaAmmo.Tier4Bear },
+            voice: { ...bearLO.HighTierVoice },
+            lootOddsData: { ...lootOdds.tier4 },
+            keysName: "tier4_PMC_Keys",
+        });
 
         if (RaidInfoTracker.isNight || RaidInfoTracker.mapName === "factory4_night") {
             botJsonTemplate.chances.equipmentMods.mod_nvg = 100;
@@ -1856,15 +1746,6 @@ export class BotLoader {
         }
         if (RaidInfoTracker.mapType == MapType.Outdoor) {
             botJsonTemplate.inventory.equipment.FirstPrimaryWeapon = tier4Json.inventory.FirstPrimaryWeapon_outdoor;
-        }
-
-        if (this.modConfig.dynamic_loot_pmcs === true) {
-            botJsonTemplate.inventory.items = tier4Json.inventory.dynamic_looting;
-            botJsonTemplate.generation.items.backpackLoot.weights = { ...lootOdds.dynamic.items.backpackLoot.weights };
-            botJsonTemplate.generation.items.vestLoot.weights = { ...lootOdds.dynamic.items.vestLoot.weights };
-            botJsonTemplate.generation.items.pocketLoot.weights = { ...lootOdds.dynamic.items.pocketLoot.weights };
-            botJsonTemplate.generation.items.drink.weights = { ...lootOdds.dynamic.items.drink.weights };
-            botJsonTemplate.generation.items.food.weights = { ...lootOdds.dynamic.items.food.weights };
         }
 
         if (this.modConfig.enable_hazard_zones == true && RaidInfoTracker.mapName === "laboratory") {
@@ -2261,7 +2142,7 @@ export class BotLoader {
             this.botConf().equipment["exusec"].lightIsActiveDayChancePercent = 100;
             this.botConf().equipment["exusec"].nvgIsActiveChanceDayPercent = 100;
         }
-        if (RaidInfoTracker.isNight && RaidInfoTracker.mapName === "Lighthouse" || RaidInfoTracker.mapName === "lighthouse") {
+        if ((RaidInfoTracker.isNight && RaidInfoTracker.mapName === "Lighthouse") || RaidInfoTracker.mapName === "lighthouse") {
             this.rogueBase.chances.equipmentMods.mod_nvg = 60;
             this.botConf().equipment["exusec"].lightIsActiveDayChancePercent = 0;
             this.botConf().equipment["exusec"].nvgIsActiveChanceDayPercent = 100;

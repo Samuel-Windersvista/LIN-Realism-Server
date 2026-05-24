@@ -756,8 +756,8 @@ export class MyLootCacheService extends BotLootCacheService {
 
         // Assign whitelisted drink to bot if any exist
         const drinkItems: Record<string, number> =
-            (Object.keys(botJsonTemplate.generation.items.food.whitelist)?.length > 0)
-                ? botJsonTemplate.generation.items.food.whitelist
+            (Object.keys(botJsonTemplate.generation.items.drink.whitelist)?.length > 0)
+                ? botJsonTemplate.generation.items.drink.whitelist
                 : {};
 
         // No drink whitelist, find and assign from combined item pool

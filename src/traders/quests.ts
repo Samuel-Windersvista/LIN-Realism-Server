@@ -73,7 +73,7 @@ export class Quests {
         //Blue Flame - Part 1
         this.questDB()["6702b3e4aff397fa3e666fa5"] = gasEventQuests["6702b3e4aff397fa3e666fa5"];
         if (!EventTracker.isHalloween) {
-            this.questDB()["6705425a0351f9f55b7d8c61"].conditions.AvailableForStart[0].value = 99;
+            this.questDB()["6702b3e4aff397fa3e666fa5"].conditions.AvailableForStart[0].value = 99;
         }
 
 

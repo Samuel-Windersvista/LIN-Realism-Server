@@ -1,31 +1,401 @@
-See the mod page's Overview for explanations of all features, installation/config instructions and known issues:
+# SPT-Realism Mod - 服务器端
 
-https://hub.sp-tarkov.com/files/file/606-spt-realism-mod/
+> **"Preparing for the Future!" -- Vault-Tec Corporation**
 
--------------Credits-----------------
+SPT-Realism（现实主义模组）是为《逃离塔科夫》离线版（SPT 3.11.x）开发的**综合性玩法大修模组**。它追求更真实的枪战体验、更智能的 Bot 行为、更经济的生存管理，以及对游戏几乎所有核心系统的深度重构。
 
-Everyone who helped find bugs and offered constructive feedback. See the hub mod page for full credits.
+---
 
-Fau​pi​​ and CWX​ for code related to displaying custom icons, from Munitions Expert​.
+## 目录
 
-101p and their HPWithDebuff mod for figuring out the wound portability formula.
+1. [核心哲学](#核心哲学)
+2. [模组架构](#模组架构)
+3. [核心功能详解](#核心功能详解)
+   - [真实弹道系统](#1-真实弹道系统)
+   - [护甲重制](#2-护甲重制)
+   - [武器附件大修](#3-武器附件大修)
+   - [真实生命值与医疗](#4-真实生命值与医疗)
+   - [Bot 系统改造](#5-bot-系统改造)
+   - [分级跳蚤市场](#6-分级跳蚤市场)
+   - [商人系统](#7-商人系统)
+   - [保险机制](#8-保险机制)
+   - [任务系统](#9-任务系统)
+   - [地图与生成](#10-地图与生成)
+   - [季节性事件](#11-季节性事件)
+   - [天气与危险区域](#12-天气与危险区域)
+4. [模组兼容性](#模组兼容性)
+5. [配置说明](#配置说明)
+6. [安装与构建](#安装与构建)
+7. [致谢](#致谢)
 
-Skybellrock for the cloning method taken from their ILLEGAL AMMO.
+---
 
-Computica for the idea of making the PMC names realistic, and for supplying a huge list of names for me to use.
+## 核心哲学
 
-JustNu for their OpenZones fix.
+SPT-Realism 的设计理念基于一个核心信念：**塔科夫的核心问题不是"太难"，而是"不够真实"**。原版游戏中的许多机制（弹道、护甲、医疗、Bot 行为）为了"游戏性"而牺牲了现实逻辑，导致玩家体验充满挫败感。
 
-notGreg for their help with plugins and finding key methods.
+该模组的目标是：
 
-Kobra for their help with plugins and their method for checking if player is ready.
+- **让枪战像真实一样进行** -- 弹药穿透力基于真实数据，护甲覆盖范围精确到碰撞体
+- **让 Bot 像真人一样战斗** -- 装备与等级挂钩、AI 行为差异化、夜间装备切换
+- **让生存管理有意义** -- 医疗物品不再是"回血药水"，而是模拟真实治疗过程
+- **让经济系统有深度** -- 跳蚤市场随玩家等级逐层解锁，商人库存动态随机化
 
-Yim and Kiki for the base code for setting the armor/ammo values (no values taken from them), with permission.
+---
 
-Kiki again for helping me figure out how to get the Tiered Feamarket working, wouldn't have figured it out without them. Also for all the coding tips.
+## 模组架构
 
-Katto for the code for function "SetHealth" taken from their Server Value Modifier mod, with permission.
+```
+SPT-Realism 服务器端
+├── src/
+│   ├── mod.ts                    # 主入口，生命周期管理
+│   ├── ballistics/               # 弹道系统
+│   │   ├── ammo.ts               #   弹药属性重写（穿透/伤害/速度/弹道系数）
+│   │   └── armor.ts              #   护甲属性重写（材料/等级/碰撞体/耐久度）
+│   ├── weapons/                  # 武器系统
+│   │   ├── weapons_globals.ts    #   全局武器参数（故障/后坐力/精通/散热）
+│   │   └── attatchment_base.ts   #   附件兼容性大修（口径转换/枪托多槽/战术设备）
+│   ├── bots/                     # Bot 系统
+│   │   ├── bots.ts               #   Bot 装配/装备/生命值/名称/层级分配
+│   │   ├── bot_gen.ts            #   Bot 生成管线覆写
+│   │   ├── bot_loot_serv.ts      #   战利品缓存系统
+│   │   └── spawns.ts             #   Bot 生成参数（Boss 概率/波次/开放区域）
+│   ├── items/                    # 物品系统
+│   │   ├── meds.ts               #   医疗/食物/兴奋剂效果修改
+│   │   ├── items.ts              #   物品注册/黑名单/全局限制
+│   │   ├── gear.ts               #   装备冲突/防毒面具/面罩
+│   │   └── item_cloning.ts       #   自定义物品克隆生成
+│   ├── traders/                  # 商人/市场系统
+│   │   ├── fleamarket.ts         #   分级跳蚤市场逻辑
+│   │   ├── traders.ts            #   商人配置/库存随机化/价格
+│   │   ├── insurance.ts          #   保险覆写（Therapist现金赔付）
+│   │   └── quests.ts             #   自定义任务注入
+│   ├── json/                     # 模板生成系统
+│   │   ├── json_gen.ts           #   物品模板JSON代码生成器
+│   │   ├── json-handler.ts       #   模板数据应用到服务端物品数据库
+│   │   └── description_gen.ts    #   物品描述文本生成
+│   ├── player/                   # 玩家系统
+│   │   └── player.ts             #   生命值池/体力/惯性/坠落/流血修改
+│   ├── utils/                    # 工具类
+│   │   ├── utils.ts              #   概率权重/时间计算/物品修正
+│   │   └── arrays.ts             #   Bot类型数组/静态数据数组
+│   └── misc/                     # 杂项
+│       └── seasonalevents.ts     #   季节性事件标志
+├── db/                           # 数据文件
+│   ├── bots/                     #   Bot配置/装配/名称/预设
+│   ├── items/                    #   医疗/食物/增益配置
+│   ├── maps/                     #   地图生成/波次/战利品
+│   ├── templates/                #   武器/装备/附件/弹药模板
+│   ├── traders/                  #   商人/跳蚤市场配置
+│   ├── quests/                   #   自定义任务定义
+│   └── new_items/                #   新增自定义物品
+├── config/config.json            # 用户可配置选项（80+开关）
+├── data/                         # 运行时状态数据
+└── bundles/                      # Unity资源包（刺刀/导气箍/握把）
+```
 
-Fin for providing code and method for generating bot mods, insuring that scopes and such are spawned correctly, and coding tips.
+### 生命周期
 
-Chomp, Crow, Alex (and the othe Alex), Fin, Lua, aleves, ThurmanMurman, SamSWAT, CWX, Eresh, and many others for all their help and putting up with my dumb question
+模组通过 SPT 的三阶段生命周期与游戏引擎集成：
+
+1. **`preSptLoad`** -- 最早介入阶段。注册 HTTP 路由（供客户端模组查询配置）、覆写核心类（Bot生成器/保险/交易商刷新/跳蚤市场搜索）。此阶段在玩家每次登录/开始/结束 Raid 时触发。
+
+2. **`postDBLoad`** -- 数据库加载完成后。执行所有物品/弹道/护甲/武器/Bot/交易商/任务的一次性配置修改。大量数据在此阶段被写入 SPT 内存数据库。
+
+3. **`postSptLoad`** -- SPT 完全启动后。获取模组加载器引用。
+
+---
+
+## 核心功能详解
+
+### 1. 真实弹道系统
+
+**配置开关：** `realistic_ballistics`
+
+**影响范围：** 所有弹药类型的穿透力、伤害、速度、跳弹概率、破片概率、后坐力修正。
+
+**实现方式：**
+- `ammo.ts` 遍历整个物品数据库（约一万条），对每种弹药进行精细化属性覆写
+- 弹药数据参考真实世界弹道学：5.45x39、7.62x39、5.56x45、7.62x51、7.62x54R、9x39、.300 BLK、.338 Lapua、12.7x55、12.7x108、.50 BMG 等数十种口径
+- 霰弹伤害按弹丸数量分配
+- 40mm 榴弹破片重写
+- 支持口径互换（.300 BLK <-> 5.56x45，.366 TKM <-> 7.62x39）
+- 射速随弹药后坐力变化（后坐力越大的弹药，理论射速越低）
+- 可选故障系统重写（`malf_changes`）：枪械卡壳概率、耐久消耗、散热速率
+
+### 2. 护甲重制
+
+**配置开关：** `realistic_ballistics`
+
+**影响范围：** 所有护甲/头盔/防弹插板的等级、耐久度、材料、钝伤透传、碰撞体。
+
+**实现方式：**
+- `armor.ts` 遍历所有物品数据库，修改护甲属性
+- 护甲材料差异化：芳纶(Aramid)、陶瓷(Ceramic)、UHMWPE、钛(Titanium)、装甲钢(ArmoredSteel)、复合材料(CombinedMaterials)，各有不同的易毁性
+- 携行具软质内衬碰撞体重映射 -- 将 `armorPlateColliders` 映射到命中箱碰撞体，确保软质护甲覆盖正确的身体部位
+- 独立防弹插板系统（SAPI/ESAPI/XSAPI），基于真实 NIJ 等级
+- 头盔子组件系统 -- 使用通用 `modifySubArmor()` 处理可拆卸面罩/下颌护具/耳罩
+- 头盔耳机冲突重置 -- 允许同时佩戴头盔和耳机
+- 面罩/防毒面具/护目镜的覆盖冲突处理
+- 防弹插板槽位按层级过滤（Bot 生成时根据玩家等级加权选择插板等级）
+
+### 3. 武器附件大修
+
+**配置开关：** `recoil_attachment_overhaul`
+
+**影响范围：** 所有武器的后坐力、人机工效、开火模式、操作类型。
+
+**实现方式：**
+- `weapons_globals.ts` 设置三种姿态的后坐力系数（趴姿/蹲姿/站姿），强化姿态对后坐力的影响
+- `attatchment_base.ts` 管理附件兼容性：
+  - **口径转换系统**：允许武器在不同口径之间切换（如 MCX 可使用 5.56 和 .300 BLK）
+  - **枪托多槽系统**：缓冲管支持同时安装多个枪托组件
+  - **战术设备兼容性**：护木/导气箍上的战术设备槽自动接受镭射/手电
+  - **自定义物品**：新增莫辛刺刀、M9刺刀、6kh4刺刀、M53A1防毒面具
+  - **Bot 必装附件**：确保 Bot 必须安装关键武器模组
+- 全局故障参数：卡壳阈值设置为 98-100% 耐久度，过热参数调整
+- 武器维修参数：维修损耗大幅降低，维修套件效果显著
+- 近战武器：格挡消耗降低、穿透力增加
+
+### 4. 真实生命值与医疗
+
+**配置开关：** `realistic_player_health`、`med_changes`、`food_changes`、`stim_changes`
+
+**影响范围：** 玩家/Bot 生命值池、医疗物品效果、食物/饮品效果、兴奋剂效果。
+
+**实现方式：**
+
+**生命值池：** `player.ts`
+- 头部 35、胸部 85、胃部 70、手臂 60、腿部 65（可乘以配置系数）
+- 体温设为 30（更真实的基础体温）
+- 体力/惯性系统大幅修改（容量、回复速率、瞄准消耗）
+- 负重限制：行走超重 54/75，行走速度 32/79，冲刺 16/30
+- 坠落伤害：10伤/米，安全高度 2.2m
+- 弹道过量伤害：腿部 2.9x、手部 2x、胃部 3.4x
+- 流血：轻伤 0.65/秒、重伤 0.95/秒
+
+**医疗系统：** `meds.ts`
+- 48 种自定义增益效果（参考真实药理学）
+- 止痛药（安乃近、布洛芬、吗啡）带有真实的副作用缓释
+- 医疗包（CAR/Salewa/IFAK/AFAK/Grizzly）不再即时回血，改为缓慢治疗
+- 止血带/夹板有真实的生效延迟
+- 手术包修复效果调整
+
+**食物/饮品：** 能量和水分消耗参数调整，食物和饮品带有真实的增益/减益效果
+
+**兴奋剂：** 20+种兴奋剂各有独特属性，如 L1（止痛+镇静）、曲马多（强止痛+体能）、丙泊酚（麻醉）、SJ系列（体能强化）、蓝血（凝血）
+
+### 5. Bot 系统改造
+
+**配置开关：** `bot_changes`
+
+**影响范围：** Bot 生成、装备、AI 行为、生命值、名称、生成数量。
+
+**五层分级系统：**
+Bot 根据玩家的等级自动选择 5 个层级（Tier 1-5），层级越高的 Bot 装备越好、AI 越强。
+
+**实现方式：**
+
+**Bot 装配管线：** `bots.ts`
+- BotLoader 单例管理整个 Bot 配置
+- 每种 Bot 类型（Scav/PMC/Raider/Rogue/Boss/Goons/Cultist）都有多套装配模板
+- PMC 有 5 层（Tier 1-5），其余 Bot 有 3 层
+- 夜间 Raid 时 Bot 自动切换夜视装备
+- 根据地图类型（工厂/户外/城市）动态调整面罩配置
+- 支持动态战利品模式（`dynamic_loot_pmcs`）-- PMC 的装备质量随地图等级变化
+
+**Bot 生成覆写：** `bot_gen.ts`
+- 完全取代 SPT 的默认 Bot 生成器
+- PMC 的地图等级与全局平均玩家等级挂钩（Ground Zero 地图限制为 1-15 级）
+- 邪教徒层级跟踪
+- 高容量弹匣限制（手枪 25 发、SMG 45 发、霰弹枪 8 发）
+- 自定义武器预设系统（从 JSON 文件加载预设武器配置）
+- 护甲插板层级过滤（根据 Bot 类型和玩家等级分配插板等级）
+- 超过 600 个 Bot 生成的缓存机制（防止性能下降）
+
+**Bot 生命值：** `setBotHealth()` 按 Bot 类型差异化设置生命值，支持 Boss/追随者/突袭者/邪教徒独立配置
+
+**Bot 名称：** 使用真实俄文名称（BEAR）和英文名称（USEC），支持西里尔字母
+
+**生成控制：** `spawns.ts`
+- Boss 生成概率随玩家等级逐渐增加
+- 自定义波次系统覆盖原版
+- Scav 波次从约 50 波缩减为最多 5 波（保留多样性但减少 AI 计算压力）
+- 开放区域修复（`openZonesFix`）-- 确保 Bot 可以在更多区域生成
+
+### 6. 分级跳蚤市场
+
+**配置开关：** `tiered_flea`
+
+**影响范围：** 跳蚤市场中可购买的商品类别随玩家等级逐步解锁。
+
+**9 级解锁系统：**
+| 等级 | 解锁内容 |
+|------|---------|
+| 0-1 | 全部禁止 |
+| 2 | 地图、手枪、导轨 |
+| 3 | + 食物/饮品、弹药 |
+| 4 | + 医疗物品、背包、胸挂 |
+| 5 | + 配件（握把/消音器/枪口/手电）、弹匣 |
+| 6 | + 护甲、头盔 |
+| 7 | + 瞄准镜 |
+| 8+ | + 武器（SMG/霰弹枪/步枪）|
+| 满解锁 | 仅黑名单物品禁止 |
+
+**实现方式：** `fleamarket.ts`
+- 8 个层级方法（`flea0`-`flea7` + `fleaFullUnlock`），每个都完全遍历物品数据库
+- 黑名单系统（禁用特定物品在跳蚤市场出售）
+- 动态报价生成、交易者范围限制
+
+### 7. 商人系统
+
+**配置开关：** `randomize_trader_stock`、`randomize_traders`、`tiered_flea`
+
+**影响范围：** 商人库存数量/价格/忠诚度等级随机化、商品价格体系、Fence 限制。
+
+**实现方式：** `traders.ts`
+
+- **库存随机化**：每次商人刷新时，20+ 种物品类别的库存数量根据平均玩家等级动态计算
+- **弹药库存差异化**：穿透力越高的弹药库存越少、缺货概率越高
+- **价格随机化**：10% 涨价 / 30% 降价 / 60% 不变
+- **忠诚度等级随机化**：20% 概率降 1 级
+- **Fence 限制**：大幅限制 Fence 的商品种类和质量
+- **交易商买入价**：根据交易者设定差异化的买入折扣
+- **维修系统**：Fence 启用维修（品质 1），调整 Prapor/Skier/Mechanic 的维修参数
+- **护甲手册价格**：按真实材料价格重新计算护甲售价（原价 70%）
+- **新增商品**：约 40 个自定义商品（刺刀/防毒面具/武器/配件/医疗物品）
+
+### 8. 保险机制
+
+**配置开关：** `insurance_changes`
+
+**影响范围：** Therapist 保险赔付改为现金返还，Prapor 保持物品返还。
+
+**实现方式：** `insurance.ts`
+- Therapist：返还所有物品的手册价格总和 + 基础赔付 100 卢布
+- Prapor：标准物品返还，附件被取走阈值提高
+- 返还概率：Prapor 40%、Therapist 90%（可配置）
+
+### 9. 任务系统
+
+**配置开关：** `enable_hazard_zones`
+
+**影响范围：** 新增 15+ 自定义任务，覆盖气体事件、辐射治疗、区域探索、动态区域。
+
+**实现方式：** `quests.ts`
+- 加载 4 类任务 JSON（gasEventQuests / treatmentQuests / exploreQuests / dynamicZoneQuests）
+- 所有语言本地化注入
+- 季节性条件（万圣节限定任务）
+- 可重复任务系统：辐射治疗任务可重复执行
+- 移除 FiR（战利品标记）任务要求
+- 武器组装任务条件宽松化（适配模组的后坐力/人机工效修改）
+
+### 10. 地图与生成
+
+**配置开关：** `boss_spawns`、`spawn_waves`、`loot_changes`、`open_zones_fix`
+
+**影响范围：** 所有地图的 Boss 生成概率、波次配置、战利品倍率。
+
+**实现方式：** `spawns.ts` + `mod.ts`
+- Boss 生成概率使用指数公式 `pow(level * 0.02, 1.85)` 随玩家等级递增
+- 强制 Boss 生成选项（`guarantee_boss_spawn`）
+- 自定义波次替换原版波次
+- Bot 数量上限提升（`increased_bot_cap`）
+- 动态战利品系统：每局结束后根据玩家搜索经验值减少该地图战利品，其他地图缓慢恢复
+- 工厂/夜晚地图的战利品别名同步更新
+
+### 11. 季节性事件
+
+**配置开关：** `enable_hazard_zones`
+
+- **万圣节**（10月20日-11月5日）：特殊任务、爆炸事件、额外邪教徒/突袭者生成、商人在爆炸后禁用
+- **圣诞节**：商品一律 85 折
+- **气体事件**：根据进度在 Raid 中随机触发，Bot 在气体事件中自动佩戴防毒面具
+
+### 12. 天气与危险区域
+
+- 万圣节期间强制覆盖季节为 1（秋季）
+- 防毒面具过滤器资源设为 100
+- 防护装备可以放入口袋槽位
+- 自定义危险品任务物品（辐射监测仪/气体监测仪/样本/SAFE容器/紧急发射器）
+
+---
+
+## 模组兼容性
+
+模组启动时会自动检测以下模组并做出调整：
+
+| 模组 | 调整 |
+|------|------|
+| **SAIN** | 记录存在标志，关闭某些冲突的 Bot 修改 |
+| **Questing Bots** | 检测后禁用自定义波次系统，避免冲突 |
+| **SWAG** | 检测后跳越 Bot 上限/波次修改 |
+| **Algorithmic Level Progression (ALP)** | 检测后发出严重警告（与 Realism 的 Bot 进度系统互斥） |
+| **Tactical Gear Component (TGC)** | 记录存在标志 |
+
+---
+
+## 配置说明
+
+所有功能开关在 `config/config.json` 中控制。主要选项：
+
+| 选项 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `realistic_ballistics` | bool | true | 真实弹道+护甲重制 |
+| `realistic_player_health` | bool | true | 真实生命值池 |
+| `recoil_attachment_overhaul` | bool | true | 后坐力+附件大修 |
+| `med_changes` | bool | true | 医疗系统修改 |
+| `food_changes` | bool | true | 食物/饮品修改 |
+| `bot_changes` | bool | true | Bot 系统改造 |
+| `tiered_flea` | bool | true | 分级跳蚤市场 |
+| `boss_spawns` | bool | true | Boss 生成概率调整 |
+| `spawn_waves` | bool | true | 自定义波次系统 |
+| `randomize_trader_stock` | bool | true | 随机化交易者库存 |
+| `insurance_changes` | bool | true | 保险现金化 |
+| `enable_hazard_zones` | bool | true | 危险区域+季节性事件 |
+| `loot_changes` | bool | true | 动态战利品消耗 |
+| `trader_refresh_time` | int | 1800 | 商人刷新间隔（秒） |
+| `player_hp_multi` | float | 1.0 | 玩家生命值倍率 |
+| `standard_bot_hp_multi` | float | 1.0 | 普通 Bot 生命值倍率 |
+
+完整配置列表和详细说明请参见模组 Hub 页面：https://hub.sp-tarkov.com/files/file/606-spt-realism-mod/
+
+---
+
+## 安装与构建
+
+### 前置要求
+- Node.js 20.x+
+- SPT 3.11.x
+
+### 构建
+```bash
+npm run setup    # 安装依赖
+npm run build    # 构建分发包
+npm run buildinfo # 详细构建日志
+```
+
+### 安装（玩家）
+将构建产生的 ZIP 文件解压到 SPT 安装目录的 `user/mods/` 文件夹中。
+
+---
+
+## 致谢
+
+感谢所有帮助发现 Bug 和提供反馈的社区成员，以及以下特别贡献者：
+
+- **Faupi / CWX** -- 自定义图标显示代码，来自 Munitions Expert
+- **101p** -- HPWithDebuff 模组的创伤可移植性公式
+- **Skybellrock** -- 物品克隆方法，来自 ILLEGAL AMMO
+- **Computica** -- 真实 PMC 名称建议和大量名称列表
+- **JustNu** -- OpenZones 修复
+- **notGreg** -- 插件和关键方法定位
+- **Kobra** -- 插件支持和玩家就绪状态检查
+- **Yim / Kiki** -- 护甲/弹药数值设定的基础代码（已获许可）
+- **Kiki** -- 分级跳蚤市场实现的关键技术支持
+- **Katto** -- `SetHealth` 函数代码，来自 Server Value Modifier（已获许可）
+- **Fin** -- Bot 模组生成方法和瞄准镜正确的生成方式
+- 以及 Chomp、Crow、Alex、Lua、aleves、ThurmanMurman、SamSWAT、CWX、Eresh 等众多社区贡献者
+
+---
+*Remember: Vault-Tec -- Preparing for the Future!*

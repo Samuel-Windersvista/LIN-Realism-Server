@@ -80,9 +80,10 @@ export class JsonGen {
         for (let i in this.itemDB()) {
             let serverItem = this.itemDB()[i];
             if (serverItem._parent === ParentClasses.AMMO || serverItem._parent === ParentClasses.AMMO_BOX) {
-                this.itemWriteToFile(ammoTemplates, "ammoTemplates", i, serverItem, "ammo", this.assignJSONToAmmo);
+                ammoTemplates[i] = this.assignJSONToAmmo(serverItem, ammoTemplates[i]);
             }
         }
+        this.utils.writeConfigJSON(ammoTemplates, "db/templates/ammo/ammoTemplates.json");
     }
 
     public gearTemplatesCodeGen() {
@@ -91,34 +92,43 @@ export class JsonGen {
             if (serverItem?._props?.armorClass != null) {
                 let armorLevl: number = typeof serverItem._props.armorClass === 'number' ? serverItem._props.armorClass : parseInt(serverItem._props.armorClass as string);
                 if (serverItem._parent === ParentClasses.CHESTRIG && armorLevl > 0) {
-                    this.itemWriteToFile(armorChestrigTemplates, "armorChestrigTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    armorChestrigTemplates[i] = this.assignJSONToGear(serverItem, armorChestrigTemplates[i]);
                 }
                 if ((serverItem._parent === ParentClasses.ARMOR_PLATE || serverItem._parent === ParentClasses.BUILT_IN_ARMOR) && armorLevl > 0) {
-                    this.itemWriteToFile(armorPlateTemplates, "armorPlateTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    armorPlateTemplates[i] = this.assignJSONToGear(serverItem, armorPlateTemplates[i]);
                 }
                 if (serverItem._parent === ParentClasses.ARMOREDEQUIPMENT && armorLevl > 0) {
-                    this.itemWriteToFile(armorComponentsTemplates, "armorComponentsTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    armorComponentsTemplates[i] = this.assignJSONToGear(serverItem, armorComponentsTemplates[i]);
                 }
                 if (serverItem._parent === ParentClasses.HEADWEAR && armorLevl > 0) {
-                    this.itemWriteToFile(helmetTemplates, "helmetTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    helmetTemplates[i] = this.assignJSONToGear(serverItem, helmetTemplates[i]);
                 }
                 if (serverItem._parent === ParentClasses.ARMORVEST && armorLevl > 0) {
-                    this.itemWriteToFile(armorVestsTemplates, "armorVestsTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    armorVestsTemplates[i] = this.assignJSONToGear(serverItem, armorVestsTemplates[i]);
                 }
                 if (serverItem._parent === ParentClasses.CHESTRIG && armorLevl === 0) {
-                    this.itemWriteToFile(chestrigTemplates, "chestrigTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    chestrigTemplates[i] = this.assignJSONToGear(serverItem, chestrigTemplates[i]);
                 }
                 if (serverItem._parent === ParentClasses.HEADSET) {
-                    this.itemWriteToFile(headsetTemplates, "headsetTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    headsetTemplates[i] = this.assignJSONToGear(serverItem, headsetTemplates[i]);
                 }
                 if ((serverItem._parent === ParentClasses.HEADWEAR || serverItem._parent === ParentClasses.FACECOVER) && armorLevl <= 1) {
-                    this.itemWriteToFile(cosmeticsTemplates, "cosmeticsTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    cosmeticsTemplates[i] = this.assignJSONToGear(serverItem, cosmeticsTemplates[i]);
                 }
                 if ((serverItem._parent === ParentClasses.BACKPACK)) {
-                    this.itemWriteToFile(bagTemplates, "bagTemplates", i, serverItem, "gear", this.assignJSONToGear, null);
+                    bagTemplates[i] = this.assignJSONToGear(serverItem, bagTemplates[i]);
                 }
             }
         }
+        this.utils.writeConfigJSON(armorPlateTemplates, "db/templates/gear/armorPlateTemplates.json");
+        this.utils.writeConfigJSON(armorComponentsTemplates, "db/templates/gear/armorComponentsTemplates.json");
+        this.utils.writeConfigJSON(armorChestrigTemplates, "db/templates/gear/armorChestrigTemplates.json");
+        this.utils.writeConfigJSON(helmetTemplates, "db/templates/gear/helmetTemplates.json");
+        this.utils.writeConfigJSON(armorVestsTemplates, "db/templates/gear/armorVestsTemplates.json");
+        this.utils.writeConfigJSON(chestrigTemplates, "db/templates/gear/chestrigTemplates.json");
+        this.utils.writeConfigJSON(headsetTemplates, "db/templates/gear/headsetTemplates.json");
+        this.utils.writeConfigJSON(cosmeticsTemplates, "db/templates/gear/cosmeticsTemplates.json");
+        this.utils.writeConfigJSON(bagTemplates, "db/templates/gear/bagTemplates.json");
     }
 
     public weapTemplatesCodeGen() {
@@ -126,38 +136,47 @@ export class JsonGen {
             let serverItem = this.itemDB()[i];
             if (serverItem._props.RecolDispersion) {
                 if (serverItem._props.weapClass === "assaultCarbine") {
-                    this.itemWriteToFile(AssaultCarbineTemplates, "AssaultCarbineTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    AssaultCarbineTemplates[i] = this.assignJSONToWeap(serverItem, AssaultCarbineTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "assaultRifle") {
-                    this.itemWriteToFile(AssaultRifleTemplates, "AssaultRifleTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    AssaultRifleTemplates[i] = this.assignJSONToWeap(serverItem, AssaultRifleTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "smg") {
-                    this.itemWriteToFile(SMGTemplates, "SMGTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    SMGTemplates[i] = this.assignJSONToWeap(serverItem, SMGTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "machinegun") {
-                    this.itemWriteToFile(MachinegunTemplates, "MachinegunTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    MachinegunTemplates[i] = this.assignJSONToWeap(serverItem, MachinegunTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "marksmanRifle") {
-
-                    this.itemWriteToFile(MarksmanRifleTemplates, "MarksmanRifleTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    MarksmanRifleTemplates[i] = this.assignJSONToWeap(serverItem, MarksmanRifleTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "sniperRifle") {
-                    this.itemWriteToFile(SniperRifleTemplates, "SniperRifleTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    SniperRifleTemplates[i] = this.assignJSONToWeap(serverItem, SniperRifleTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "pistol") {
-                    this.itemWriteToFile(PistolTemplates, "PistolTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    PistolTemplates[i] = this.assignJSONToWeap(serverItem, PistolTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "shotgun") {
-                    this.itemWriteToFile(ShotgunTemplates, "ShotgunTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    ShotgunTemplates[i] = this.assignJSONToWeap(serverItem, ShotgunTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "specialWeapon") {
-                    this.itemWriteToFile(SpecialWeaponTemplates, "SpecialWeaponTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    SpecialWeaponTemplates[i] = this.assignJSONToWeap(serverItem, SpecialWeaponTemplates[i]);
                 }
                 if (serverItem._props.weapClass === "grenadeLauncher") {
-                    this.itemWriteToFile(GrenadeLauncherTemplates, "GrenadeLauncherTemplates", i, serverItem, "weapons", this.assignJSONToWeap, null)
+                    GrenadeLauncherTemplates[i] = this.assignJSONToWeap(serverItem, GrenadeLauncherTemplates[i]);
                 }
             }
         }
+        this.utils.writeConfigJSON(AssaultRifleTemplates, "db/templates/weapons/AssaultRifleTemplates.json");
+        this.utils.writeConfigJSON(AssaultCarbineTemplates, "db/templates/weapons/AssaultCarbineTemplates.json");
+        this.utils.writeConfigJSON(MachinegunTemplates, "db/templates/weapons/MachinegunTemplates.json");
+        this.utils.writeConfigJSON(MarksmanRifleTemplates, "db/templates/weapons/MarksmanRifleTemplates.json");
+        this.utils.writeConfigJSON(PistolTemplates, "db/templates/weapons/PistolTemplates.json");
+        this.utils.writeConfigJSON(ShotgunTemplates, "db/templates/weapons/ShotgunTemplates.json");
+        this.utils.writeConfigJSON(SMGTemplates, "db/templates/weapons/SMGTemplates.json");
+        this.utils.writeConfigJSON(SniperRifleTemplates, "db/templates/weapons/SniperRifleTemplates.json");
+        this.utils.writeConfigJSON(SpecialWeaponTemplates, "db/templates/weapons/SpecialWeaponTemplates.json");
+        this.utils.writeConfigJSON(GrenadeLauncherTemplates, "db/templates/weapons/GrenadeLauncherTemplates.json");
     }
 
     public attTemplatesCodeGen() {
@@ -170,28 +189,22 @@ export class JsonGen {
                             StaticArrays.modTypes[value] === "550aa4dd4bdc2dc9348b4569" ||
                             StaticArrays.modTypes[value] === "550aa4cd4bdc2dd8348b456c"
                         ) {
-                            let id = "muzzle"
-                            this.itemWriteToFile(MuzzleDeviceTemplates, "MuzzleDeviceTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            MuzzleDeviceTemplates[i] = this.assignJSONToMod(serverItem, MuzzleDeviceTemplates[i], "muzzle");
                         }
                         if (StaticArrays.modTypes[value] === "555ef6e44bdc2de9068b457e") {
-                            let id = "barrel"
-                            this.itemWriteToFile(BarrelTemplates, "BarrelTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            BarrelTemplates[i] = this.assignJSONToMod(serverItem, BarrelTemplates[i], "barrel");
                         }
                         if (StaticArrays.modTypes[value] === "55818b224bdc2dde698b456f") {
-                            let id = "mount"
-                            this.itemWriteToFile(MountTemplates, "MountTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            MountTemplates[i] = this.assignJSONToMod(serverItem, MountTemplates[i], "mount");
                         }
                         if (StaticArrays.modTypes[value] === "55818a304bdc2db5418b457d") {
-                            let id = "receiver"
-                            this.itemWriteToFile(ReceiverTemplates, "ReceiverTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            ReceiverTemplates[i] = this.assignJSONToMod(serverItem, ReceiverTemplates[i], "receiver");
                         }
                         if (StaticArrays.modTypes[value] === "55818a594bdc2db9688b456a") {
-                            let id = "stock"
-                            this.itemWriteToFile(StockTemplates, "StockTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            StockTemplates[i] = this.assignJSONToMod(serverItem, StockTemplates[i], "stock");
                         }
                         if (StaticArrays.modTypes[value] === "55818a6f4bdc2db9688b456b") {
-                            let id = "charging"
-                            this.itemWriteToFile(ChargingHandleTemplates, "ChargingHandleTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            ChargingHandleTemplates[i] = this.assignJSONToMod(serverItem, ChargingHandleTemplates[i], "charging");
                         }
                         if (StaticArrays.modTypes[value] === "55818acf4bdc2dde698b456b" ||
                             StaticArrays.modTypes[value] === "55818ad54bdc2ddc698b4569" ||
@@ -199,58 +212,58 @@ export class JsonGen {
                             StaticArrays.modTypes[value] === "55818ae44bdc2dde698b456c" ||
                             StaticArrays.modTypes[value] === "55818aeb4bdc2ddc698b456a"
                         ) {
-                            let id = "scope"
-                            this.itemWriteToFile(ScopeTemplates, "ScopeTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            ScopeTemplates[i] = this.assignJSONToMod(serverItem, ScopeTemplates[i], "scope");
                         }
                         if (StaticArrays.modTypes[value] === "55818ac54bdc2d5b648b456e") {
-                            let id = "irons"
-                            this.itemWriteToFile(IronSightTemplates, "IronSightTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            IronSightTemplates[i] = this.assignJSONToMod(serverItem, IronSightTemplates[i], "irons");
                         }
                         if (StaticArrays.modTypes[value] === "5448bc234bdc2d3c308b4569" ||
                             StaticArrays.modTypes[value] === "610720f290b75a49ff2e5e25" ||
                             StaticArrays.modTypes[value] === "627a137bf21bc425b06ab944"
                         ) {
-                            let id = "magazine"
-                            this.itemWriteToFile(MagazineTemplates, "MagazineTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            MagazineTemplates[i] = this.assignJSONToMod(serverItem, MagazineTemplates[i], "magazine");
                         }
                         if (StaticArrays.modTypes[value] === "5a74651486f7744e73386dd1" ||
                             StaticArrays.modTypes[value] === "55818afb4bdc2dde698b456d"
                         ) {
-                            let id = "aux"
-                            this.itemWriteToFile(AuxiliaryModTemplates, "AuxiliaryModTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            AuxiliaryModTemplates[i] = this.assignJSONToMod(serverItem, AuxiliaryModTemplates[i], "aux");
                         }
                         if (StaticArrays.modTypes[value] === "55818af64bdc2d5b648b4570") {
-                            let id = "foregrip"
-                            this.itemWriteToFile(ForegripTemplates, "ForegripTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            ForegripTemplates[i] = this.assignJSONToMod(serverItem, ForegripTemplates[i], "foregrip");
                         }
                         if (StaticArrays.modTypes[value] === "55818a684bdc2ddd698b456d") {
-                            let id = "pistolgrip"
-                            this.itemWriteToFile(PistolGripTemplates, "PistolGripTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            PistolGripTemplates[i] = this.assignJSONToMod(serverItem, PistolGripTemplates[i], "pistolgrip");
                         }
                         if (StaticArrays.modTypes[value] === "56ea9461d2720b67698b456f") {
-                            let id = "gasblock"
-                            this.itemWriteToFile(GasblockTemplates, "GasblockTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            GasblockTemplates[i] = this.assignJSONToMod(serverItem, GasblockTemplates[i], "gasblock");
                         }
                         if (StaticArrays.modTypes[value] === "55818a104bdc2db9688b4569") {
-                            let id = "handguard"
-                            this.itemWriteToFile(HandguardTemplates, "HandguardTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            HandguardTemplates[i] = this.assignJSONToMod(serverItem, HandguardTemplates[i], "handguard");
                         }
                         if (StaticArrays.modTypes[value] === "55818b084bdc2d5b648b4571" ||
                             StaticArrays.modTypes[value] === "55818b164bdc2ddc698b456c"
                         ) {
-                            let id = "flashlight"
-                            this.itemWriteToFile(FlashlightLaserTemplates, "FlashlightLaserTemplates", i, serverItem, "attatchments", this.assignJSONToMod, id);
+                            FlashlightLaserTemplates[i] = this.assignJSONToMod(serverItem, FlashlightLaserTemplates[i], "flashlight");
                         }
                     }
                 }
             }
         }
-    }
-
-    private itemWriteToFile(filePathObj: object, fileStr: string, index: string, serverItem: ITemplateItem, folderStr: string, funJsonAssign: Function, id?: string) {
-        let fileItem = filePathObj[index];
-        filePathObj[index] = funJsonAssign(serverItem, fileItem, id);
-        this.utils.writeConfigJSON(filePathObj, `db/templates/${folderStr}/${fileStr}.json`);
+        this.utils.writeConfigJSON(MuzzleDeviceTemplates, "db/templates/attatchments/MuzzleDeviceTemplates.json");
+        this.utils.writeConfigJSON(BarrelTemplates, "db/templates/attatchments/BarrelTemplates.json");
+        this.utils.writeConfigJSON(MountTemplates, "db/templates/attatchments/MountTemplates.json");
+        this.utils.writeConfigJSON(ReceiverTemplates, "db/templates/attatchments/ReceiverTemplates.json");
+        this.utils.writeConfigJSON(StockTemplates, "db/templates/attatchments/StockTemplates.json");
+        this.utils.writeConfigJSON(ChargingHandleTemplates, "db/templates/attatchments/ChargingHandleTemplates.json");
+        this.utils.writeConfigJSON(ScopeTemplates, "db/templates/attatchments/ScopeTemplates.json");
+        this.utils.writeConfigJSON(IronSightTemplates, "db/templates/attatchments/IronSightTemplates.json");
+        this.utils.writeConfigJSON(MagazineTemplates, "db/templates/attatchments/MagazineTemplates.json");
+        this.utils.writeConfigJSON(AuxiliaryModTemplates, "db/templates/attatchments/AuxiliaryModTemplates.json");
+        this.utils.writeConfigJSON(ForegripTemplates, "db/templates/attatchments/ForegripTemplates.json");
+        this.utils.writeConfigJSON(PistolGripTemplates, "db/templates/attatchments/PistolGripTemplates.json");
+        this.utils.writeConfigJSON(GasblockTemplates, "db/templates/attatchments/GasblockTemplates.json");
+        this.utils.writeConfigJSON(HandguardTemplates, "db/templates/attatchments/HandguardTemplates.json");
+        this.utils.writeConfigJSON(FlashlightLaserTemplates, "db/templates/attatchments/FlashlightLaserTemplates.json");
     }
 
     private assignJSONToAmmo(serverItem: ITemplateItem, fileItem: any) {

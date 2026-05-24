@@ -369,7 +369,7 @@ export class Traders {
                         if (childTemplate == null || childTemplate?.Price == null || childTemplate.Price == 0) continue;
                         totalPrice += childTemplate.Price;
                     }
-                    const conversionRate = barterItem._tpl == "5696686a4bdc2da3298b456a" ? 108 : barterItem._tpl == "5696686a4bdc2da3298b456a" ? 117 : 1;
+                    const conversionRate = barterItem._tpl == "5696686a4bdc2da3298b456a" ? 108 : barterItem._tpl == "569668774bdc2da2298b4568" ? 117 : 1;
                     barterItem.count = Math.round(totalPrice / conversionRate);
                 }
             }
@@ -389,7 +389,7 @@ export class Traders {
                 const barterItem = barter?.[0]?.[0];
                 if (barterItem == null || this.itemDB()[barterItem?._tpl]?._parent !== ParentClasses.MONEY) continue;
                 const itemTemplate = this.itemDB()[offerTpl];
-                if (itemTemplate == null) return;
+                if (itemTemplate == null) continue;
                 const itemParent = this.itemDB()[offerTpl]?._parent;
                 if (itemParent == null) return;
                 if (itemParent === ParentClasses.AMMO) barterItem.count *= 1.5;
@@ -859,7 +859,7 @@ export class RandomizeTraderAssort {
                 delete item.upd.BuyRestrictionCurrent;
             }
             if (item.upd.hasOwnProperty('BuyRestrictionMax')) {
-                delete item.upd.BuyRestrictionCurrent;
+                delete item.upd.BuyRestrictionMax;
             }
         }
 

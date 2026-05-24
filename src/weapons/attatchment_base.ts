@@ -89,16 +89,16 @@ export class AttachmentBase {
             let serverItem = this.itemDB()[i];
             if (serverItem?._props?.RecoilReturnSpeedHandRotation != null) {
                 if (serverItem._props.ammoCaliber === "Caliber366TKM") {
-                    serverItem._props.Chambers[0]._props.filters[0].Filter.push(..._762x39Ammo);
+                    serverItem._props.Chambers?.[0]?._props?.filters?.[0]?.Filter.push(..._762x39Ammo);
                 }
-                if (serverItem._props.Chambers.length && serverItem._props.ammoCaliber === "Caliber762x39") {
-                    serverItem._props.Chambers[0]._props.filters[0].Filter.push(..._366Ammo);
+                if (serverItem._props.Chambers?.length && serverItem._props.ammoCaliber === "Caliber762x39") {
+                    serverItem._props.Chambers?.[0]?._props?.filters?.[0]?.Filter.push(..._366Ammo);
                 }
-                if (serverItem._props.Chambers.length && serverItem._props.ammoCaliber === "Caliber762x35") {
-                    serverItem._props.Chambers[0]._props.filters[0].Filter.push(..._556Ammo);
+                if (serverItem._props.Chambers?.length && serverItem._props.ammoCaliber === "Caliber762x35") {
+                    serverItem._props.Chambers?.[0]?._props?.filters?.[0]?.Filter.push(..._556Ammo);
                 }
-                if (serverItem._props.Chambers.length && serverItem._props.ammoCaliber === "Caliber556x45NATO") {
-                    serverItem._props.Chambers[0]._props.filters[0].Filter.push(..._300BlkAmmo);
+                if (serverItem._props.Chambers?.length && serverItem._props.ammoCaliber === "Caliber556x45NATO") {
+                    serverItem._props.Chambers?.[0]?._props?.filters?.[0]?.Filter.push(..._300BlkAmmo);
                 }
             }
         }
