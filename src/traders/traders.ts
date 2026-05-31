@@ -430,7 +430,7 @@ export class Traders {
             const offerId = offer._id;
             const offerTpl = offer._tpl;
             if (template[offerTpl]) {
-                const barter = trader?.assort?.barter_scheme[offerId][0][0];
+                const barter = trader?.assort?.barter_scheme?.[offerId]?.[0]?.[0];
                 const templateItem = template[offerTpl];
                 const loyaltyLvl = templateItem?.LoyaltyLevel != null ? templateItem?.LoyaltyLevel : 2;
                 if (this.itemDB()[barter?._tpl]?._parent !== ParentClasses.MONEY) {
@@ -1071,7 +1071,6 @@ export class RandomizeTraderAssort {
 export class RagCallback extends RagfairCallbacks {
 
     public mySearch(url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult> {
-        this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info))
         return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
     }
 }
@@ -1086,7 +1085,9 @@ export class TraderRefresh extends TraderAssortHelper {
         if (trader.base.nickname === "БТР" || trader.base.nickname === "Arena") return;
 
         const traderId = trader.base._id;
-        trader.assort = this.cloner.clone(this.traderAssortService.getPristineTraderAssort(traderId));
+        // 只替换 items，保留 barter_scheme 和 loyal_level_items -- 与 SPT 原版行为一致
+        const pristineAssort = this.traderAssortService.getPristineTraderAssort(traderId);
+        trader.assort.items = this.cloner.clone(pristineAssort.items);
 
         const profilesData: IPmcData[] = ProfileTracker.getPmcProfileData(this.profileHelper);
 
