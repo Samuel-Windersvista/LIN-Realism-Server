@@ -714,6 +714,18 @@ export class Traders {
 
         assort.loyal_level_items[assortId] = loyalLvl;
     }
+
+    // 确保所有 trader 的 assort 都包含 barter_scheme，避免 SPT 3.11.x 的 traderOfferItemQuestLocked
+    // 遍历所有 trader assort 时因缺失 barter_scheme 而崩溃（如 Fence 动态 assort）
+    public ensureBarterSchemesExist(): void {
+        for (const traderId in this.tables.traders) {
+            const trader = this.tables.traders[traderId];
+            if (trader?.assort && trader.assort.barter_scheme == null) {
+                this.logger.warning(`Realism Mod: Trader "${trader.base.nickname}" (${traderId}) has no barter_scheme, initializing empty object.`);
+                trader.assort.barter_scheme = {};
+            }
+        }
+    }
 }
 
 

@@ -848,6 +848,8 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
 
         traders.loadTraderRepairs();
         if (modConfig.realistic_ballistics) traders.adjustArmorHandbookPrices();
+        // 修复缺失 barter_scheme 的 trader（如 Fence），防止 flea 搜索时 SPT 内部崩溃
+        traders.ensureBarterSchemesExist();
 
         //have to run this async to ensure correct load order
         (async () => {
