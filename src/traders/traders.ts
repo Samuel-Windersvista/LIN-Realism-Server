@@ -6,6 +6,7 @@ import { container } from "tsyringe";
 import { TraderAssortHelper } from "@spt/helpers/TraderAssortHelper";
 import { IItem } from "@spt/models/eft/common/tables/IItem";
 import { DatabaseServer } from "@spt/servers/DatabaseServer";
+import { DatabaseService } from "@spt/services/DatabaseService";
 import { Utils, ProfileTracker } from "../utils/utils";
 import { Calibers, ParentClasses } from "../utils/enums";
 import { ISearchRequestData } from "@spt/models/eft/ragfair/ISearchRequestData";
@@ -391,7 +392,7 @@ export class Traders {
                 const itemTemplate = this.itemDB()[offerTpl];
                 if (itemTemplate == null) continue;
                 const itemParent = this.itemDB()[offerTpl]?._parent;
-                if (itemParent == null) return;
+                if (itemParent == null) continue;
                 if (itemParent === ParentClasses.AMMO) barterItem.count *= 1.5;
                 if (itemParent === ParentClasses.AMMO_BOX) barterItem.count *= 1.5;
                 if (itemParent === ParentClasses.DRUGS) barterItem.count *= 2;
@@ -717,12 +718,30 @@ export class Traders {
 
     // 确保所有 trader 的 assort 都包含 barter_scheme，避免 SPT 3.11.x 的 traderOfferItemQuestLocked
     // 遍历所有 trader assort 时因缺失 barter_scheme 而崩溃（如 Fence 动态 assort）
+    // 增强版：同时检测 items 中存在但 barter_scheme 中缺失的条目，防止其他 MOD 异步修改 trader 数据后导致不一致
     public ensureBarterSchemesExist(): void {
         for (const traderId in this.tables.traders) {
             const trader = this.tables.traders[traderId];
-            if (trader?.assort && trader.assort.barter_scheme == null) {
+            if (!trader?.assort) continue;
+
+            // 初始化缺失的 barter_scheme 对象
+            if (trader.assort.barter_scheme == null) {
                 this.logger.warning(`Realism Mod: Trader "${trader.base.nickname}" (${traderId}) has no barter_scheme, initializing empty object.`);
                 trader.assort.barter_scheme = {};
+            }
+
+            // 确保所有顶级物品（parentId === "hideout"）都有对应的 barter_scheme 条目
+            // 其他 MOD（如 barter_economy）可能在运行时替换 items 但不同步 barter_scheme
+            if (trader.assort.items) {
+                for (const item of trader.assort.items) {
+                    if (item.parentId === "hideout" && trader.assort.barter_scheme[item._id] == null) {
+                        this.logger.warning(
+                            `Realism Mod: Item ${item._id} (_tpl: ${item._tpl}) in trader "${trader.base.nickname}" ` +
+                            `exists in items but not in barter_scheme. Adding default barter entry to prevent SPT crash.`
+                        );
+                        trader.assort.barter_scheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
+                    }
+                }
             }
         }
     }
@@ -1082,8 +1101,65 @@ export class RandomizeTraderAssort {
 
 export class RagCallback extends RagfairCallbacks {
 
+    private databaseService: DatabaseService;
+    private logger: ILogger;
+
+    constructor(
+        httpResponse: any, ragfairServer: any, ragfairController: any,
+        ragfairTaxService: any, configServer: any,
+        databaseService: DatabaseService, logger: ILogger
+    ) {
+        super(httpResponse, ragfairServer, ragfairController, ragfairTaxService, configServer);
+        this.databaseService = databaseService;
+        this.logger = logger;
+    }
+
     public mySearch(url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult> {
-        return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
+        // 在调用 getOffers 之前同步所有 trader 的 barter_scheme
+        try {
+            this.ensureAllTraderBarterSchemesSynced();
+        } catch (syncErr) {
+            this.logger.warning(`Realism Mod: Failed to sync barter schemes before flea search: ${syncErr}`);
+        }
+
+        // 包裹 getOffers 防止 SPT 内部 RagfairOfferHelper.traderOfferItemQuestLocked 崩溃
+        // 即使 barter_scheme 已同步，SPT 仍可能因其他原因崩溃（如 ragfair offer 引用不存在的 trader）
+        try {
+            return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
+        } catch (e) {
+            this.logger.error(
+                `Realism Mod: Flea market search crashed despite barter_scheme sync. ` +
+                `This indicates a deeper issue - likely a ragfair offer referencing a non-existent trader. ` +
+                `Error: ${e?.message || e}`
+            );
+            this.logger.error(`Realism Mod: Search query: ${JSON.stringify(info)}`);
+            // 返回空结果防止游戏崩溃，而非重新抛出
+            return this.httpResponse.getBody({} as IGetOffersResult);
+        }
+    }
+
+    private ensureAllTraderBarterSchemesSynced(): void {
+        const tables = this.databaseService.getTables();
+        if (!tables?.traders) return;
+
+        for (const traderId in tables.traders) {
+            const trader = tables.traders[traderId];
+            if (!trader?.assort) continue;
+
+            // 初始化缺失的 barter_scheme 对象
+            if (trader.assort.barter_scheme == null) {
+                trader.assort.barter_scheme = {};
+            }
+
+            // 确保所有顶级物品（parentId === "hideout"）都有 barter_scheme 条目
+            if (!trader.assort.items) continue;
+            const barterScheme = trader.assort.barter_scheme;
+            for (const item of trader.assort.items) {
+                if (item.parentId === "hideout" && barterScheme[item._id] == null) {
+                    barterScheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
+                }
+            }
+        }
     }
 }
 
@@ -1107,6 +1183,11 @@ export class TraderRefresh extends TraderAssortHelper {
             trader.assort.items = this.modifyTraderAssorts(trader, profilesData);
         }
 
+        // 同步 barter_scheme 与 items，防止 SPT 核心 traderOfferItemQuestLocked 崩溃
+        // 其他 MOD（barter_economy 等）可能在运行时替换 items 并修改 barter_scheme，
+        // 但不同步两者，导致某些 item 的 barter_scheme 条目缺失
+        this.syncBarterSchemeWithItems(trader);
+
         trader.base.nextResupply = this.traderHelper.getNextUpdateTimestamp(trader.base._id);
 
         trader.base.refreshTraderRagfairOffers = true;
@@ -1114,6 +1195,19 @@ export class TraderRefresh extends TraderAssortHelper {
         //seems like manually refreshing ragfair is necessary. 
         this.ragfairOfferGenerator.generateFleaOffersForTrader(trader.base._id);
 
+    }
+
+    private syncBarterSchemeWithItems(trader: ITrader): void {
+        if (!trader?.assort?.barter_scheme || !trader?.assort?.items) return;
+
+        const barterScheme = trader.assort.barter_scheme;
+
+        // 确保所有顶级物品（parentId === "hideout"）都有 barter_scheme 条目
+        for (const item of trader.assort.items) {
+            if (item.parentId === "hideout" && barterScheme[item._id] == null) {
+                barterScheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
+            }
+        }
     }
 
     private modifyTraderAssorts(trader: ITrader, profilesData: IPmcData[]): IItem[] {

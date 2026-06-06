@@ -316,7 +316,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             const ragfairController = container.resolve<RagfairController>("RagfairController");
             const ragfairTaxServ = container.resolve<RagfairTaxService>("RagfairTaxService");
             const ragfairServer = container.resolve<RagfairServer>("RagfairServer");
-            const ragFairCallback = new RagCallback(httpResponse, ragfairServer, ragfairController, ragfairTaxServ, configServer);
+            const ragFairCallback = new RagCallback(httpResponse, ragfairServer, ragfairController, ragfairTaxServ, configServer, databaseService, logger);
             container.afterResolution("RagfairCallbacks", (_t, result: RagfairCallbacks) => {
                 result.search = (url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult> => {
                     return ragFairCallback.mySearch(url, info, sessionID);
@@ -345,6 +345,40 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                 }
             }, { frequency: "Always" });
         }
+
+        // 拦截 RagfairController.getOffers，在每次跳蚤搜索前同步所有 trader 的 barter_scheme
+        // 解决 SPT 核心 RagfairOfferHelper.traderOfferItemQuestLocked 中 traderAssorts 字典
+        // 查找 trader 返回 null 后未检查就直接访问 .barter_scheme 导致的 TypeError 崩溃
+        const syncAllTraderBarterSchemes = (db: DatabaseService, log: ILogger): void => {
+            const tables = db.getTables();
+            if (!tables?.traders) return;
+            for (const traderId in tables.traders) {
+                const trader = tables.traders[traderId];
+                if (!trader?.assort) continue;
+                if (trader.assort.barter_scheme == null) {
+                    trader.assort.barter_scheme = {};
+                }
+                if (!trader.assort.items) continue;
+                const barterScheme = trader.assort.barter_scheme;
+                for (const item of trader.assort.items) {
+                    if (item.parentId === "hideout" && barterScheme[item._id] == null) {
+                        barterScheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
+                    }
+                }
+            }
+        };
+
+        container.afterResolution("RagfairController", (_t, result: RagfairController) => {
+            const originalGetOffers = result.getOffers.bind(result);
+            result.getOffers = function (sessionID: string, info: ISearchRequestData): IGetOffersResult {
+                try {
+                    syncAllTraderBarterSchemes(databaseService, logger);
+                } catch (syncErr) {
+                    // 同步失败不应阻止搜索
+                }
+                return originalGetOffers(sessionID, info);
+            };
+        }, { frequency: "Always" });
 
 
         staticRouterModService.registerStaticRouter(
