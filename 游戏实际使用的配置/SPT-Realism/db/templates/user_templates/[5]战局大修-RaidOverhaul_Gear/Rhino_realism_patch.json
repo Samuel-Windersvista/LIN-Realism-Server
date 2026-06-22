@@ -1,0 +1,20 @@
+{
+  "6621b1f22310f5ff09476360": {
+    "$type": "RealismMod.Gear, RealismMod",
+    "Name": "CQC 犀牛防弹板携行背心（MTP迷彩）",
+    "AllowADS": true,
+    "LoyaltyLevel": 1,
+    "ArmorClass": "GOST 6A",
+    "CanSpall": false,
+    "SpallReduction": 0.75,
+    "ReloadSpeedMulti": 1.05,
+    "Comfort": 0.84,
+    "speedPenaltyPercent": -2.09,
+    "mousePenalty": 0,
+    "weaponErgonomicPenalty": -2.45,
+    "TemplateType": "gear",
+    "Price": 35086,
+    "Weight": 0,
+    "ItemID": "6621b1f22310f5ff09476360"
+  }
+}

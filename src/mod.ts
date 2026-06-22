@@ -771,7 +771,6 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
         }
 
         if (modConfig.enable_hazard_zones) {
-            gear.loadSpecialSlotChanges();
             gear.addResourceToGasMaskFilters();
             itemCloning.createCustomHazardItems();
         }
@@ -901,6 +900,12 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             statHandler.pushGearToServer();
 
             await statHandler.processTemplateJson(false);
+
+            // 动态收集完成后再修改槽位过滤器（此时 gasMaskItemIds 已包含所有模板中的防毒面具）
+            if (modConfig.enable_hazard_zones) {
+                gear.loadSpecialSlotChanges();
+            }
+
             descGen.descriptionGen();
 
             if (modConfig.malf_changes == true) {
@@ -909,7 +914,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
 
             if (modConfig.recoil_attachment_overhaul) {
                 ammo.loadAmmoFirerateChanges();
-                quests.fixMechancicQuests();
+                quests.fixMechanicQuests();
             }
 
             gear.loadGearConflicts();

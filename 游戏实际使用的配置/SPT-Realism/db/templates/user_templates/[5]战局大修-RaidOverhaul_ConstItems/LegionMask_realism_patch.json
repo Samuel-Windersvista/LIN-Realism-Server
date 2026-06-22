@@ -1,0 +1,21 @@
+{
+  "6621b200cb248c192d90e324": {
+    "$type": "RealismMod.Gear, RealismMod",
+    "Name": "军团面具（暴怒）",
+    "AllowADS": true,
+    "LoyaltyLevel": 1,
+    "ArmorClass": "GOST 6A",
+    "CanSpall": false,
+    "SpallReduction": 0.8,
+    "ReloadSpeedMulti": 1,
+    "Comfort": 1,
+    "speedPenaltyPercent": 0,
+    "mousePenalty": 0,
+    "weaponErgonomicPenalty": 0,
+    "TemplateType": "gear",
+    "Price": 14589,
+    "Weight": 0,
+    "ItemID": "6621b200cb248c192d90e324",
+    "ConflictingItems": []
+  }
+}

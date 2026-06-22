@@ -1,0 +1,20 @@
+{
+  "6621b28d9411498998d408c3": {
+    "$type": "RealismMod.Gear, RealismMod",
+    "Name": "Oakley Kitchen Sink 支援型背包",
+    "AllowADS": true,
+    "LoyaltyLevel": 1,
+    "ArmorClass": "GOST 6A",
+    "CanSpall": false,
+    "SpallReduction": 0.8,
+    "ReloadSpeedMulti": 1,
+    "Comfort": 0.81,
+    "speedPenaltyPercent": -2.82,
+    "mousePenalty": 0,
+    "weaponErgonomicPenalty": 0,
+    "TemplateType": "gear",
+    "Price": 23880,
+    "Weight": 0,
+    "ItemID": "6621b28d9411498998d408c3"
+  }
+}

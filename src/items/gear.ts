@@ -4,6 +4,7 @@ import { StaticArrays } from "../utils/arrays";
 import { ParentClasses } from "../utils/enums";
 import { ITemplateItem } from "@spt/models/eft/common/tables/ITemplateItem";
 import { Utils } from "../utils/utils";
+import { ItemStatHandler } from "../json/json-handler";
 
 export class Gear {
     constructor(private tables: IDatabaseTables, private logger: ILogger, private modConfig: any) { }
@@ -20,7 +21,20 @@ export class Gear {
 
     public loadSpecialSlotChanges() {
 
-        let itemsToAdd: string[] = [...StaticArrays.hazardDetectionDevices, ...StaticArrays.gasMasks, "59e7715586f7742ee5789605"]; //respirator
+        // 动态从已处理的JSON模板中收集所有 IsGasMask: true 的物品ID
+        let gasMaskIds: string[];
+        try {
+            const statHandler = ItemStatHandler.getInstance();
+            gasMaskIds = [...statHandler.gasMaskItemIds];
+        } catch {
+            gasMaskIds = [];
+        }
+        // 兜底：如果动态收集为空，回退到硬编码列表
+        if (gasMaskIds.length === 0) {
+            gasMaskIds = StaticArrays.gasMasks;
+        }
+
+        let itemsToAdd: string[] = [...StaticArrays.hazardDetectionDevices, ...gasMaskIds];
 
         this.itemDB()["627a4e6b255f7527fb05a0f6"]._props.Slots.forEach(slot => {
             slot._props.filters[0].Filter.push(...itemsToAdd);

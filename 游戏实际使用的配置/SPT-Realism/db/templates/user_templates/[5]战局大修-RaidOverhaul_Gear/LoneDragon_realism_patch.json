@@ -1,0 +1,20 @@
+{
+  "6621b274485df00e750df4f2": {
+    "$type": "RealismMod.Gear, RealismMod",
+    "Name": "孤龙防弹板携行背心",
+    "AllowADS": true,
+    "LoyaltyLevel": 1,
+    "ArmorClass": "GOST 6A",
+    "CanSpall": false,
+    "SpallReduction": 0.69,
+    "ReloadSpeedMulti": 0.98,
+    "Comfort": 0.97,
+    "speedPenaltyPercent": -5.85,
+    "mousePenalty": 0,
+    "weaponErgonomicPenalty": -2.83,
+    "TemplateType": "gear",
+    "Price": 35142,
+    "Weight": 0,
+    "ItemID": "6621b274485df00e750df4f2"
+  }
+}

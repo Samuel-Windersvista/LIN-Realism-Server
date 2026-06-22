@@ -72,6 +72,9 @@ export class ItemStatHandler {
 
     public modifiedItems: { [key: string]: any } = {};
 
+    // 动态收集所有 IsGasMask: true 的物品ID，用于槽位过滤器
+    public gasMaskItemIds: Set<string> = new Set();
+
     public pushModsToServer() {
         this.callHelper(MuzzleDeviceTemplates, this.itemDB(), this.modPusherHelper);
         this.callHelper(BarrelTemplates, this.itemDB(), this.modPusherHelper);
@@ -185,6 +188,11 @@ export class ItemStatHandler {
             }
 
             this.modifiedItems[fileItem.ItemID] = fileItem;//store the item in an object to be used later for reskins
+
+            // 动态收集防毒面具ID，供 loadSpecialSlotChanges 使用
+            if (fileItem.IsGasMask === true) {
+                this.gasMaskItemIds.add(fileItem.ItemID);
+            }
 
             serverItem._props.speedPenaltyPercent = fileItem.speedPenaltyPercent != null ? fileItem.speedPenaltyPercent : baseItem._props.speedPenaltyPercent;
             serverItem._props.mousePenalty = fileItem.mousePenalty != null ? fileItem.mousePenalty : baseItem._props.mousePenalty;

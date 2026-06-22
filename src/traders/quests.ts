@@ -352,7 +352,7 @@ export class Quests {
         }
     }
 
-    public fixMechancicQuests() {
+    public fixMechanicQuests() {
         for (let i in this.questDB()) {
             if (!this.questDB()[i].type.toLowerCase().includes("weaponassembly")) continue;
             let quest = this.questDB()[i];

@@ -1,0 +1,19 @@
+{
+  "6621b1e0bd80eeb4de0c9ed8": {
+    "$type": "RealismMod.Gear, RealismMod",
+    "ItemID": "6621b1e0bd80eeb4de0c9ed8",
+    "Name": "军团防弹背心（腐肉）",
+    "AllowADS": true,
+    "LoyaltyLevel": 4,
+    "ArmorClass": "NIJ RF3 07",
+    "CanSpall": false,
+    "SpallReduction": 0.74,
+    "ReloadSpeedMulti": 0.99,
+    "Comfort": 1.02,
+    "speedPenaltyPercent": -2.5,
+    "mousePenalty": 0,
+    "weaponErgonomicPenalty": -2.61,
+    "TemplateType": "gear",
+    "Price": 31820
+  }
+}
