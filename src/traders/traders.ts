@@ -1221,12 +1221,16 @@ export class RagCallback extends RagfairCallbacks {
         }
 
         // 2. 删除引用不存在 trader 的孤儿 flea offer
-        if (!this.ragfairOfferService) {
-            this.logger.warning(`Realism Mod: Cannot remove orphan offers - ragfairOfferService unavailable.`);
+        let ragfairOfferService: RagfairOfferService;
+        try {
+            ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            this.logger.warning(`Realism Mod: Cannot resolve RagfairOfferService for cleanup: ${msg}`);
             return;
         }
 
-        const offers = this.ragfairOfferService.getOffers();
+        const offers = ragfairOfferService.getOffers();
         if (!Array.isArray(offers)) {
             this.logger.warning(`Realism Mod: ragfairOfferService.getOffers() returned non-array.`);
             return;
@@ -1248,7 +1252,7 @@ export class RagCallback extends RagfairCallbacks {
                     `OfferID: ${offerId}, TraderID: ${traderId}, ItemTpl: ${itemTpl}`
                 );
                 try {
-                    this.ragfairOfferService.removeOfferById(offerId);
+                    ragfairOfferService.removeOfferById(offerId);
                     removedCount++;
                 } catch (removeErr) {
                     const removeMsg = removeErr instanceof Error ? removeErr.message : String(removeErr);
@@ -1264,11 +1268,19 @@ export class RagCallback extends RagfairCallbacks {
 
     // 当 SPT 崩溃时，被动扫描所有 ragfair offer，输出可疑 offer 的诊断信息
     public diagnoseOrphanOffers(): void {
-        if (!this.ragfairOfferService) return;
+        let ragfairOfferService: RagfairOfferService;
+        try {
+            ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            this.logger.warning(`Realism Mod: Cannot resolve RagfairOfferService for diagnosis: ${msg}`);
+            return;
+        }
+
         const tables = this.databaseService.getTables();
         if (!tables?.traders) return;
 
-        const offers = this.ragfairOfferService.getOffers();
+        const offers = ragfairOfferService.getOffers();
         if (!Array.isArray(offers)) return;
 
         const badOffers: any[] = [];
