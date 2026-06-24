@@ -370,13 +370,58 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             }
         };
 
+        // 删除引用不存在 trader 或缺少 assort 的孤儿 flea offer
+        const removeOrphanRagfairOffers = (ragfairOfferServ: RagfairOfferService, db: DatabaseService, log: ILogger): void => {
+            let offers: any[];
+            try {
+                offers = ragfairOfferServ.getOffers();
+            } catch (e) {
+                return;
+            }
+            if (!Array.isArray(offers)) return;
+
+            const tables = db.getTables();
+            if (!tables?.traders) return;
+
+            const offersCopy = [...offers];
+            let removedCount = 0;
+            for (const offer of offersCopy) {
+                const traderId = offer?.user?.id;
+                if (!traderId) continue;
+
+                const trader = tables.traders[traderId];
+                if (!trader?.assort) {
+                    const offerId = offer?._id ?? "unknown";
+                    try {
+                        ragfairOfferServ.removeOfferById(offerId);
+                        removedCount++;
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+            }
+
+            if (removedCount > 0) {
+                log.warning(`Realism Mod: Interceptor removed ${removedCount} orphan ragfair offers.`);
+            }
+        };
+
+        let lastRagfairCleanupTime = 0;
+        const RAGFAIR_CLEANUP_INTERVAL_MS = 60000;
+        const ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
+
         container.afterResolution("RagfairController", (_t, result: RagfairController) => {
             const originalGetOffers = result.getOffers.bind(result);
             result.getOffers = function (sessionID: string, info: ISearchRequestData): IGetOffersResult {
-                try {
-                    syncAllTraderBarterSchemes(databaseService, logger);
-                } catch (syncErr) {
-                    // 同步失败不应阻止搜索
+                const now = Date.now();
+                if (now - lastRagfairCleanupTime > RAGFAIR_CLEANUP_INTERVAL_MS) {
+                    try {
+                        syncAllTraderBarterSchemes(databaseService, logger);
+                        removeOrphanRagfairOffers(ragfairOfferService, databaseService, logger);
+                        lastRagfairCleanupTime = now;
+                    } catch (syncErr) {
+                        // 同步失败不应阻止搜索
+                    }
                 }
                 return originalGetOffers(sessionID, info);
             };
