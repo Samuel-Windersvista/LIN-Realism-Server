@@ -763,6 +763,11 @@ export class Traders {
             const trader = this.tables.traders[traderId];
             if (!trader?.assort) {
                 const offerId = (offer as any)?._id ?? "unknown";
+                const itemTpl = (offer as any)?.items?.[0]?._tpl ?? "unknown";
+                this.logger.warning(
+                    `Realism Mod: Found orphan ragfair offer. ` +
+                    `OfferID: ${offerId}, TraderID: ${traderId}, ItemTpl: ${itemTpl}`
+                );
                 try {
                     ragfairOfferService.removeOfferById(offerId);
                     removedCount++;
@@ -1168,6 +1173,9 @@ export class RagCallback extends RagfairCallbacks {
                     this.logger.error(`Realism Mod: Deep cleanup itself failed: ${repairMsg}`);
                 }
 
+                // 输出所有可疑 offer 的诊断信息，帮助定位是哪个 trader 出问题
+                this.diagnoseOrphanOffers();
+
                 // 重试前检查 controller 是否仍然有效
                 if (!this.ragfairController) {
                     this.logger.error(`Realism Mod: ragfairController became undefined after cleanup, cannot retry.`);
@@ -1234,6 +1242,11 @@ export class RagCallback extends RagfairCallbacks {
             const trader = tables.traders[traderId];
             if (!trader?.assort) {
                 const offerId = (offer as any)?._id ?? "unknown";
+                const itemTpl = (offer as any)?.items?.[0]?._tpl ?? "unknown";
+                this.logger.warning(
+                    `Realism Mod: [Runtime] Found orphan ragfair offer. ` +
+                    `OfferID: ${offerId}, TraderID: ${traderId}, ItemTpl: ${itemTpl}`
+                );
                 try {
                     this.ragfairOfferService.removeOfferById(offerId);
                     removedCount++;
@@ -1246,6 +1259,41 @@ export class RagCallback extends RagfairCallbacks {
 
         if (removedCount > 0) {
             this.logger.warning(`Realism Mod: Removed ${removedCount} orphan ragfair offers referencing missing traders.`);
+        }
+    }
+
+    // 当 SPT 崩溃时，被动扫描所有 ragfair offer，输出可疑 offer 的诊断信息
+    public diagnoseOrphanOffers(): void {
+        if (!this.ragfairOfferService) return;
+        const tables = this.databaseService.getTables();
+        if (!tables?.traders) return;
+
+        const offers = this.ragfairOfferService.getOffers();
+        if (!Array.isArray(offers)) return;
+
+        const badOffers: any[] = [];
+        for (const offer of offers) {
+            const traderId = (offer as any)?.user?.id;
+            if (!traderId) continue;
+
+            const trader = tables.traders[traderId];
+            if (!trader?.assort) {
+                badOffers.push({
+                    offerId: (offer as any)?._id ?? "unknown",
+                    traderId: traderId,
+                    itemTpl: (offer as any)?.items?.[0]?._tpl ?? "unknown",
+                    user: (offer as any)?.user
+                });
+            }
+        }
+
+        if (badOffers.length > 0) {
+            this.logger.error(`Realism Mod: Diagnosed ${badOffers.length} orphan ragfair offers:`);
+            for (const bad of badOffers) {
+                this.logger.error(
+                    `  - OfferID: ${bad.offerId}, TraderID: ${bad.traderId}, ItemTpl: ${bad.itemTpl}`
+                );
+            }
         }
     }
 }
