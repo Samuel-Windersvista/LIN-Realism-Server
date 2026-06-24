@@ -1155,22 +1155,32 @@ export class RagCallback extends RagfairCallbacks {
     }
 
     public mySearch(url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult> {
+        // 优先使用本地 logger；如果构造函数注入失败，从容器解析
+        let log = this.logger;
+        if (!log) {
+            try {
+                log = container.resolve<ILogger>("WinstonLogger");
+            } catch {
+                // 如果连 logger 都没有，无法记录，但至少不要崩溃
+            }
+        }
+
         try {
             return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
         } catch (e) {
             const errMsg = e instanceof Error ? e.message : String(e);
             if (errMsg.includes("barter_scheme")) {
-                this.logger.error(
+                log?.error(
                     `Realism Mod: Flea search crashed due to barter_scheme issue. ` +
                     `Running deep cleanup and retrying...`
                 );
-                this.logger.error(`Realism Mod: Search query: ${JSON.stringify(info)}`);
+                log?.error(`Realism Mod: Search query: ${JSON.stringify(info)}`);
 
                 try {
                     this.deepRepairRagfairIntegrity();
                 } catch (repairErr) {
                     const repairMsg = repairErr instanceof Error ? repairErr.message : String(repairErr);
-                    this.logger.error(`Realism Mod: Deep cleanup itself failed: ${repairMsg}`);
+                    log?.error(`Realism Mod: Deep cleanup itself failed: ${repairMsg}`);
                 }
 
                 // 输出所有可疑 offer 的诊断信息，帮助定位是哪个 trader 出问题
@@ -1178,17 +1188,17 @@ export class RagCallback extends RagfairCallbacks {
 
                 // 重试前检查 controller 是否仍然有效
                 if (!this.ragfairController) {
-                    this.logger.error(`Realism Mod: ragfairController became undefined after cleanup, cannot retry.`);
+                    log?.error(`Realism Mod: ragfairController became undefined after cleanup, cannot retry.`);
                 } else {
                     try {
                         return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
                     } catch (retryErr) {
                         const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
-                        this.logger.error(`Realism Mod: Retry failed after deep cleanup: ${retryMsg}`);
+                        log?.error(`Realism Mod: Retry failed after deep cleanup: ${retryMsg}`);
                     }
                 }
             } else {
-                this.logger.error(`Realism Mod: Flea search crashed with non-barter_scheme error: ${errMsg}`);
+                log?.error(`Realism Mod: Flea search crashed with non-barter_scheme error: ${errMsg}`);
             }
             // 作为最后防线，返回空结果防止游戏崩溃
             return this.httpResponse.getBody({} as IGetOffersResult);
@@ -1196,9 +1206,17 @@ export class RagCallback extends RagfairCallbacks {
     }
 
     private deepRepairRagfairIntegrity(): void {
-        const tables = this.databaseService.getTables();
+        let db: DatabaseService;
+        try {
+            db = this.databaseService ?? container.resolve<DatabaseService>("DatabaseService");
+        } catch {
+            return;
+        }
+        const log = this.logger ?? container.resolve<ILogger>("WinstonLogger");
+
+        const tables = db.getTables();
         if (!tables?.traders) {
-            this.logger.warning(`Realism Mod: Cannot repair ragfair integrity - tables.traders unavailable.`);
+            log.warning(`Realism Mod: Cannot repair ragfair integrity - tables.traders unavailable.`);
             return;
         }
 
@@ -1262,23 +1280,31 @@ export class RagCallback extends RagfairCallbacks {
         }
 
         if (removedCount > 0) {
-            this.logger.warning(`Realism Mod: Removed ${removedCount} orphan ragfair offers referencing missing traders.`);
+            log.warning(`Realism Mod: Removed ${removedCount} orphan ragfair offers referencing missing traders.`);
         }
     }
 
     // 当 SPT 崩溃时，被动扫描所有 ragfair offer，输出可疑 offer 的诊断信息
     public diagnoseOrphanOffers(): void {
+        let db: DatabaseService;
+        try {
+            db = this.databaseService ?? container.resolve<DatabaseService>("DatabaseService");
+        } catch {
+            return;
+        }
+        const log = this.logger ?? container.resolve<ILogger>("WinstonLogger");
+
+        const tables = db.getTables();
+        if (!tables?.traders) return;
+
         let ragfairOfferService: RagfairOfferService;
         try {
             ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            this.logger.warning(`Realism Mod: Cannot resolve RagfairOfferService for diagnosis: ${msg}`);
+            log.warning(`Realism Mod: Cannot resolve RagfairOfferService for diagnosis: ${msg}`);
             return;
         }
-
-        const tables = this.databaseService.getTables();
-        if (!tables?.traders) return;
 
         const offers = ragfairOfferService.getOffers();
         if (!Array.isArray(offers)) return;
@@ -1300,9 +1326,9 @@ export class RagCallback extends RagfairCallbacks {
         }
 
         if (badOffers.length > 0) {
-            this.logger.error(`Realism Mod: Diagnosed ${badOffers.length} orphan ragfair offers:`);
+            log.error(`Realism Mod: Diagnosed ${badOffers.length} orphan ragfair offers:`);
             for (const bad of badOffers) {
-                this.logger.error(
+                log.error(
                     `  - OfferID: ${bad.offerId}, TraderID: ${bad.traderId}, ItemTpl: ${bad.itemTpl}`
                 );
             }
