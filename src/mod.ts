@@ -885,6 +885,8 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
         if (modConfig.realistic_ballistics) traders.adjustArmorHandbookPrices();
         // 修复缺失 barter_scheme 的 trader（如 Fence），防止 flea 搜索时 SPT 内部崩溃
         traders.ensureBarterSchemesExist();
+        // 删除引用不存在 trader 的孤儿 flea offer，避免 traderOfferItemQuestLocked 崩溃
+        traders.removeOrphanRagfairOffers();
 
         //have to run this async to ensure correct load order
         (async () => {

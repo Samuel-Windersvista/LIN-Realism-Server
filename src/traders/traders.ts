@@ -746,6 +746,37 @@ export class Traders {
             }
         }
     }
+
+    // 删除引用不存在 trader 或缺少 assort 的孤儿 flea offer
+    // 在 mod 加载时调用，防止 SPT 3.11.x 的 traderOfferItemQuestLocked 遍历到这些 offer 时崩溃
+    public removeOrphanRagfairOffers(): void {
+        const ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
+        const offers = ragfairOfferService.getOffers();
+        if (!Array.isArray(offers)) return;
+
+        const offersCopy = [...offers];
+        let removedCount = 0;
+        for (const offer of offersCopy) {
+            const traderId = (offer as any)?.user?.id;
+            if (!traderId) continue;
+
+            const trader = this.tables.traders[traderId];
+            if (!trader?.assort) {
+                const offerId = (offer as any)?._id ?? "unknown";
+                try {
+                    ragfairOfferService.removeOfferById(offerId);
+                    removedCount++;
+                } catch (e) {
+                    const msg = e instanceof Error ? e.message : String(e);
+                    this.logger.warning(`Realism Mod: Failed to remove orphan offer ${offerId}: ${msg}`);
+                }
+            }
+        }
+
+        if (removedCount > 0) {
+            this.logger.warning(`Realism Mod: Removed ${removedCount} orphan ragfair offers at startup.`);
+        }
+    }
 }
 
 
@@ -1132,11 +1163,24 @@ export class RagCallback extends RagfairCallbacks {
 
                 try {
                     this.deepRepairRagfairIntegrity();
-                    return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
-                } catch (retryErr) {
-                    const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
-                    this.logger.error(`Realism Mod: Retry failed after deep cleanup: ${retryMsg}`);
+                } catch (repairErr) {
+                    const repairMsg = repairErr instanceof Error ? repairErr.message : String(repairErr);
+                    this.logger.error(`Realism Mod: Deep cleanup itself failed: ${repairMsg}`);
                 }
+
+                // 重试前检查 controller 是否仍然有效
+                if (!this.ragfairController) {
+                    this.logger.error(`Realism Mod: ragfairController became undefined after cleanup, cannot retry.`);
+                } else {
+                    try {
+                        return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
+                    } catch (retryErr) {
+                        const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
+                        this.logger.error(`Realism Mod: Retry failed after deep cleanup: ${retryMsg}`);
+                    }
+                }
+            } else {
+                this.logger.error(`Realism Mod: Flea search crashed with non-barter_scheme error: ${errMsg}`);
             }
             // 作为最后防线，返回空结果防止游戏崩溃
             return this.httpResponse.getBody({} as IGetOffersResult);
@@ -1145,7 +1189,10 @@ export class RagCallback extends RagfairCallbacks {
 
     private deepRepairRagfairIntegrity(): void {
         const tables = this.databaseService.getTables();
-        if (!tables?.traders) return;
+        if (!tables?.traders) {
+            this.logger.warning(`Realism Mod: Cannot repair ragfair integrity - tables.traders unavailable.`);
+            return;
+        }
 
         // 1. 修复所有 trader 的 barter_scheme
         for (const traderId in tables.traders) {
@@ -1166,16 +1213,34 @@ export class RagCallback extends RagfairCallbacks {
         }
 
         // 2. 删除引用不存在 trader 的孤儿 flea offer
+        if (!this.ragfairOfferService) {
+            this.logger.warning(`Realism Mod: Cannot remove orphan offers - ragfairOfferService unavailable.`);
+            return;
+        }
+
         const offers = this.ragfairOfferService.getOffers();
+        if (!Array.isArray(offers)) {
+            this.logger.warning(`Realism Mod: ragfairOfferService.getOffers() returned non-array.`);
+            return;
+        }
+
+        // 复制数组避免在迭代时修改原数组
+        const offersCopy = [...offers];
         let removedCount = 0;
-        for (const offer of offers) {
+        for (const offer of offersCopy) {
             const traderId = (offer as any)?.user?.id;
             if (!traderId) continue;
 
             const trader = tables.traders[traderId];
             if (!trader?.assort) {
-                this.ragfairOfferService.removeOfferById((offer as any)._id);
-                removedCount++;
+                const offerId = (offer as any)?._id ?? "unknown";
+                try {
+                    this.ragfairOfferService.removeOfferById(offerId);
+                    removedCount++;
+                } catch (removeErr) {
+                    const removeMsg = removeErr instanceof Error ? removeErr.message : String(removeErr);
+                    this.logger.warning(`Realism Mod: Failed to remove orphan offer ${offerId}: ${removeMsg}`);
+                }
             }
         }
 
