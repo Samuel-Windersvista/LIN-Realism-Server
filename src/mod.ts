@@ -38,6 +38,7 @@ import { PaymentHelper } from "@spt/helpers/PaymentHelper";
 import { ITrader } from "@spt/models/eft/common/tables/ITrader";
 import { TraderPurchasePersisterService } from "@spt/services/TraderPurchasePersisterService";
 import { RagfairServer } from "@spt/servers/RagfairServer";;
+import { RagfairOfferService } from "@spt/services/RagfairOfferService";
 import { BotHelper } from "@spt/helpers/BotHelper";
 import { IBotBase } from "@spt/models/eft/common/tables/IBotBase";
 import { BotLevelGenerator } from "@spt/generators/BotLevelGenerator";
@@ -316,7 +317,8 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             const ragfairController = container.resolve<RagfairController>("RagfairController");
             const ragfairTaxServ = container.resolve<RagfairTaxService>("RagfairTaxService");
             const ragfairServer = container.resolve<RagfairServer>("RagfairServer");
-            const ragFairCallback = new RagCallback(httpResponse, ragfairServer, ragfairController, ragfairTaxServ, configServer, databaseService, logger);
+            const ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
+            const ragFairCallback = new RagCallback(httpResponse, ragfairServer, ragfairController, ragfairTaxServ, configServer, databaseService, logger, ragfairOfferService);
             container.afterResolution("RagfairCallbacks", (_t, result: RagfairCallbacks) => {
                 result.search = (url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult> => {
                     return ragFairCallback.mySearch(url, info, sessionID);

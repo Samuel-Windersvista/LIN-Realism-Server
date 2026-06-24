@@ -13,6 +13,7 @@ import { ISearchRequestData } from "@spt/models/eft/ragfair/ISearchRequestData";
 import { IGetBodyResponseData } from "@spt/models/eft/httpResponse/IGetBodyResponseData";
 import { IGetOffersResult } from "@spt/models/eft/ragfair/IGetOffersResult";
 import { RagfairCallbacks } from "@spt/callbacks/RagfairCallbacks";
+import { RagfairOfferService } from "@spt/services/RagfairOfferService";
 import { ITemplateItem } from "@spt/models/eft/common/tables/ITemplateItem";
 import { EventTracker } from "../misc/seasonalevents";
 import { IPmcData } from "@spt/models/eft/common/IPmcData";
@@ -1103,55 +1104,58 @@ export class RagCallback extends RagfairCallbacks {
 
     private databaseService: DatabaseService;
     private logger: ILogger;
+    private ragfairOfferService: RagfairOfferService;
 
     constructor(
         httpResponse: any, ragfairServer: any, ragfairController: any,
         ragfairTaxService: any, configServer: any,
-        databaseService: DatabaseService, logger: ILogger
+        databaseService: DatabaseService, logger: ILogger,
+        ragfairOfferService: RagfairOfferService
     ) {
         super(httpResponse, ragfairServer, ragfairController, ragfairTaxService, configServer);
         this.databaseService = databaseService;
         this.logger = logger;
+        this.ragfairOfferService = ragfairOfferService;
     }
 
     public mySearch(url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult> {
-        // 在调用 getOffers 之前同步所有 trader 的 barter_scheme
-        try {
-            this.ensureAllTraderBarterSchemesSynced();
-        } catch (syncErr) {
-            this.logger.warning(`Realism Mod: Failed to sync barter schemes before flea search: ${syncErr}`);
-        }
-
-        // 包裹 getOffers 防止 SPT 内部 RagfairOfferHelper.traderOfferItemQuestLocked 崩溃
-        // 即使 barter_scheme 已同步，SPT 仍可能因其他原因崩溃（如 ragfair offer 引用不存在的 trader）
         try {
             return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
         } catch (e) {
-            this.logger.error(
-                `Realism Mod: Flea market search crashed despite barter_scheme sync. ` +
-                `This indicates a deeper issue - likely a ragfair offer referencing a non-existent trader. ` +
-                `Error: ${e?.message || e}`
-            );
-            this.logger.error(`Realism Mod: Search query: ${JSON.stringify(info)}`);
-            // 返回空结果防止游戏崩溃，而非重新抛出
+            const errMsg = e instanceof Error ? e.message : String(e);
+            if (errMsg.includes("barter_scheme")) {
+                this.logger.error(
+                    `Realism Mod: Flea search crashed due to barter_scheme issue. ` +
+                    `Running deep cleanup and retrying...`
+                );
+                this.logger.error(`Realism Mod: Search query: ${JSON.stringify(info)}`);
+
+                try {
+                    this.deepRepairRagfairIntegrity();
+                    return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
+                } catch (retryErr) {
+                    const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
+                    this.logger.error(`Realism Mod: Retry failed after deep cleanup: ${retryMsg}`);
+                }
+            }
+            // 作为最后防线，返回空结果防止游戏崩溃
             return this.httpResponse.getBody({} as IGetOffersResult);
         }
     }
 
-    private ensureAllTraderBarterSchemesSynced(): void {
+    private deepRepairRagfairIntegrity(): void {
         const tables = this.databaseService.getTables();
         if (!tables?.traders) return;
 
+        // 1. 修复所有 trader 的 barter_scheme
         for (const traderId in tables.traders) {
             const trader = tables.traders[traderId];
             if (!trader?.assort) continue;
 
-            // 初始化缺失的 barter_scheme 对象
             if (trader.assort.barter_scheme == null) {
                 trader.assort.barter_scheme = {};
             }
 
-            // 确保所有顶级物品（parentId === "hideout"）都有 barter_scheme 条目
             if (!trader.assort.items) continue;
             const barterScheme = trader.assort.barter_scheme;
             for (const item of trader.assort.items) {
@@ -1159,6 +1163,24 @@ export class RagCallback extends RagfairCallbacks {
                     barterScheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
                 }
             }
+        }
+
+        // 2. 删除引用不存在 trader 的孤儿 flea offer
+        const offers = this.ragfairOfferService.getOffers();
+        let removedCount = 0;
+        for (const offer of offers) {
+            const traderId = (offer as any)?.user?.id;
+            if (!traderId) continue;
+
+            const trader = tables.traders[traderId];
+            if (!trader?.assort) {
+                this.ragfairOfferService.removeOfferById((offer as any)._id);
+                removedCount++;
+            }
+        }
+
+        if (removedCount > 0) {
+            this.logger.warning(`Realism Mod: Removed ${removedCount} orphan ragfair offers referencing missing traders.`);
         }
     }
 }
