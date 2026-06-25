@@ -348,6 +348,7 @@ export class Traders {
     }
 
     public setBasePrice(templates: any[], trader: ITrader, isNestedArmor: boolean = false) {
+        if (!trader?.assort?.items || !trader?.assort?.barter_scheme) return;
         for (const t in templates) {
             const template = templates[t];
             for (const ti in template) {
@@ -356,7 +357,7 @@ export class Traders {
                 if (offer == null) continue;
                 const offerId = offer._id;
                 if (offer._id == null) continue;
-                const barterItem = trader?.assort?.barter_scheme?.[offerId]?.[0]?.[0];
+                const barterItem = trader.assort.barter_scheme[offerId]?.[0]?.[0];
                 if (barterItem == null || this.itemDB()[barterItem?._tpl]?._parent !== ParentClasses.MONEY) continue;
                 if (!isNestedArmor) {
                     const priceModifier = templateItem?.BasePriceModifier != null ? templateItem?.BasePriceModifier : 1;
@@ -380,6 +381,7 @@ export class Traders {
 
 
     private adjustPriceByCategory(trader: ITrader) {
+        if (!trader?.assort?.items || !trader?.assort?.barter_scheme) return;
         if (modConfig.adjust_trader_prices == true)
             for (const i in trader.assort.items) {
                 const offer = trader.assort.items[i];
@@ -426,13 +428,14 @@ export class Traders {
     }
 
     private setLL(template: any, trader: ITrader) {
+        if (!trader?.assort?.items || !trader?.assort?.barter_scheme) return;
         for (let item in trader.assort.items) {
             if (trader.assort.items[item].parentId !== "hideout") continue;
             const offer = trader.assort.items[item];
             const offerId = offer._id;
             const offerTpl = offer._tpl;
             if (template[offerTpl]) {
-                const barter = trader?.assort?.barter_scheme?.[offerId]?.[0]?.[0];
+                const barter = trader.assort.barter_scheme[offerId]?.[0]?.[0];
                 const templateItem = template[offerTpl];
                 const loyaltyLvl = templateItem?.LoyaltyLevel != null ? templateItem?.LoyaltyLevel : 2;
                 if (this.itemDB()[barter?._tpl]?._parent !== ParentClasses.MONEY) {
@@ -629,7 +632,11 @@ export class Traders {
 
     private assortBarterPusher(assortId: string, trader: string, itemId: string, buyRestriction: number, barters: Record<string, number>, loyalLvl: number) {
 
-        let assort = this.tables.traders[trader].assort;
+        let assort = this.tables.traders[trader]?.assort;
+        if (!assort) {
+            this.logger.warning(`Realism Mod: Cannot push barter for trader ${trader}, assort missing.`);
+            return;
+        }
         this.assortBarterHelper(assort, assortId, barters, loyalLvl, itemId, buyRestriction);
     }
 
@@ -670,7 +677,11 @@ export class Traders {
     }
 
     private assortItemPusher(assortId: string, trader: string, itemId: string, buyRestriction: number, saleCurrency: string, loyalLvl: number, useHandbookPrice: boolean, price: number = 0, priceMulti: number = 1) {
-        let assort = this.tables.traders[trader].assort;
+        let assort = this.tables.traders[trader]?.assort;
+        if (!assort) {
+            this.logger.warning(`Realism Mod: Cannot push item for trader ${trader}, assort missing.`);
+            return;
+        }
         if (useHandbookPrice == true) {
             price += this.handBookPriceLookup(itemId);
         }
@@ -723,7 +734,19 @@ export class Traders {
     public ensureBarterSchemesExist(): void {
         for (const traderId in this.tables.traders) {
             const trader = this.tables.traders[traderId];
-            if (!trader?.assort) continue;
+            if (!trader) continue;
+
+            // 如果 trader 完全缺失 assort，补一个空 assort，防止 SPT 内部把 undefined 写入 traderAssorts 字典
+            if (!trader.assort) {
+                this.logger.warning(`Realism Mod: Trader "${trader.base?.nickname}" (${traderId}) has no assort, creating empty assort.`);
+                trader.assort = {
+                    items: [],
+                    barter_scheme: {},
+                    loyal_level_items: {},
+                    nextResupply: 0
+                };
+                continue;
+            }
 
             // 初始化缺失的 barter_scheme 对象
             if (trader.assort.barter_scheme == null) {
@@ -1220,10 +1243,21 @@ export class RagCallback extends RagfairCallbacks {
             return;
         }
 
-        // 1. 修复所有 trader 的 barter_scheme
+        // 1. 修复所有 trader 的 barter_scheme；若某个 trader 完全缺失 assort，则补一个空 assort
         for (const traderId in tables.traders) {
             const trader = tables.traders[traderId];
-            if (!trader?.assort) continue;
+            if (!trader) continue;
+
+            if (!trader.assort) {
+                log.warning(`Realism Mod: [Runtime] Trader "${trader.base?.nickname}" (${traderId}) has no assort, creating empty assort.`);
+                trader.assort = {
+                    items: [],
+                    barter_scheme: {},
+                    loyal_level_items: {},
+                    nextResupply: 0
+                };
+                continue;
+            }
 
             if (trader.assort.barter_scheme == null) {
                 trader.assort.barter_scheme = {};
@@ -1244,13 +1278,13 @@ export class RagCallback extends RagfairCallbacks {
             ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            this.logger.warning(`Realism Mod: Cannot resolve RagfairOfferService for cleanup: ${msg}`);
+            log.warning(`Realism Mod: Cannot resolve RagfairOfferService for cleanup: ${msg}`);
             return;
         }
 
         const offers = ragfairOfferService.getOffers();
         if (!Array.isArray(offers)) {
-            this.logger.warning(`Realism Mod: ragfairOfferService.getOffers() returned non-array.`);
+            log.warning(`Realism Mod: ragfairOfferService.getOffers() returned non-array.`);
             return;
         }
 
@@ -1265,7 +1299,7 @@ export class RagCallback extends RagfairCallbacks {
             if (!trader?.assort) {
                 const offerId = (offer as any)?._id ?? "unknown";
                 const itemTpl = (offer as any)?.items?.[0]?._tpl ?? "unknown";
-                this.logger.warning(
+                log.warning(
                     `Realism Mod: [Runtime] Found orphan ragfair offer. ` +
                     `OfferID: ${offerId}, TraderID: ${traderId}, ItemTpl: ${itemTpl}`
                 );
@@ -1274,7 +1308,7 @@ export class RagCallback extends RagfairCallbacks {
                     removedCount++;
                 } catch (removeErr) {
                     const removeMsg = removeErr instanceof Error ? removeErr.message : String(removeErr);
-                    this.logger.warning(`Realism Mod: Failed to remove orphan offer ${offerId}: ${removeMsg}`);
+                    log.warning(`Realism Mod: Failed to remove orphan offer ${offerId}: ${removeMsg}`);
                 }
             }
         }
@@ -1332,6 +1366,8 @@ export class RagCallback extends RagfairCallbacks {
                     `  - OfferID: ${bad.offerId}, TraderID: ${bad.traderId}, ItemTpl: ${bad.itemTpl}`
                 );
             }
+        } else {
+            log.warning(`Realism Mod: No orphan ragfair offers detected during diagnosis.`);
         }
     }
 }
@@ -1347,6 +1383,17 @@ export class TraderRefresh extends TraderAssortHelper {
 
         const traderId = trader.base._id;
         // 只替换 items，保留 barter_scheme 和 loyal_level_items -- 与 SPT 原版行为一致
+        // 若 trader 完全缺失 assort，先创建一个空 assort，避免后续操作崩溃
+        if (!trader.assort) {
+            this.logger.warning(`Realism Mod: Trader "${trader.base?.nickname}" (${traderId}) has no assort in myResetExpiredTrader, creating empty assort.`);
+            trader.assort = {
+                items: [],
+                barter_scheme: {},
+                loyal_level_items: {},
+                nextResupply: 0
+            };
+        }
+
         const pristineAssort = this.traderAssortService.getPristineTraderAssort(traderId);
         trader.assort.items = this.cloner.clone(pristineAssort.items);
 
@@ -1388,12 +1435,23 @@ export class TraderRefresh extends TraderAssortHelper {
         const randomTraderAss = new RandomizeTraderAssort();
         const utils = Utils.getInstance();
 
+        // 防御性检查：确保 assort 存在
+        if (!trader.assort) {
+            this.logger.warning(`Realism Mod: Trader "${trader.base?.nickname}" (${trader.base._id}) has no assort in modifyTraderAssorts, returning empty items.`);
+            return [];
+        }
+
+        // 防御性检查：确保 barter_scheme 存在
+        if (!trader.assort.barter_scheme) {
+            trader.assort.barter_scheme = {};
+        }
+
         let assortItems = trader.assort.items;
         let assortBarters = trader.assort.barter_scheme;
         let averageLL = randomTraderAss.getAverageLL(profilesData, trader.base._id);
 
         if (modConfig.randomize_trader_ll == true) {
-            let ll = trader.assort.loyal_level_items;
+            let ll = trader.assort.loyal_level_items ?? {};
             for (let lvl in ll) {
                 randomTraderAss.randomizeLL(ll, lvl);
             }

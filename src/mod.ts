@@ -35,7 +35,7 @@ import { TraderHelper } from "@spt/helpers/TraderHelper";
 import { FenceService } from "@spt/services/FenceService";
 import { TraderAssortService } from "@spt/services/TraderAssortService";
 import { PaymentHelper } from "@spt/helpers/PaymentHelper";
-import { ITrader } from "@spt/models/eft/common/tables/ITrader";
+import { ITrader, ITraderAssort } from "@spt/models/eft/common/tables/ITrader";
 import { TraderPurchasePersisterService } from "@spt/services/TraderPurchasePersisterService";
 import { RagfairServer } from "@spt/servers/RagfairServer";;
 import { RagfairOfferService } from "@spt/services/RagfairOfferService";
@@ -356,7 +356,17 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             if (!tables?.traders) return;
             for (const traderId in tables.traders) {
                 const trader = tables.traders[traderId];
-                if (!trader?.assort) continue;
+                if (!trader?.assort) {
+                    // 为完全没有 assort 的 trader 创建一个空 assort，防止 SPT 内部 getAssort 返回 undefined
+                    log.warning(`Realism Mod: Trader "${trader?.base?.nickname}" (${traderId}) has no assort, creating empty assort.`);
+                    trader.assort = {
+                        items: [],
+                        barter_scheme: {},
+                        loyal_level_items: {},
+                        nextResupply: 0
+                    };
+                    continue;
+                }
                 if (trader.assort.barter_scheme == null) {
                     trader.assort.barter_scheme = {};
                 }
@@ -424,6 +434,48 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                     }
                 }
                 return originalGetOffers(sessionID, info);
+            };
+        }, { frequency: "Always" });
+
+        // 拦截 TraderAssortHelper.getAssort，确保它永远不会返回 null/undefined
+        // 这是最后一道防线：即使 SPT 内部构建 traderAssorts 字典时某个 trader 数据异常，
+        // 也能提供一个空 assort 避免 traderOfferItemQuestLocked 崩溃
+        container.afterResolution("TraderAssortHelper", (_t, result: any) => {
+            const originalGetAssort = result.getAssort.bind(result);
+            result.getAssort = function (sessionId: string, traderId: string, showLockedAssorts = false): ITraderAssort {
+                const assort = originalGetAssort(sessionId, traderId, showLockedAssorts);
+                if (assort == null) {
+                    logger.warning(`Realism Mod: TraderAssortHelper.getAssort(${traderId}) returned null, returning empty assort.`);
+                    return {
+                        items: [],
+                        barter_scheme: {},
+                        loyal_level_items: {},
+                        nextResupply: 0
+                    };
+                }
+                if (assort.barter_scheme == null) {
+                    assort.barter_scheme = {};
+                }
+                return assort;
+            };
+        }, { frequency: "Always" });
+
+        // 直接拦截 RagfairOfferHelper.traderOfferItemQuestLocked，这是崩溃的最直接位置
+        // SPT 原实现未检查 traderAssorts[offer.user.id] 是否为空就直接访问 .barter_scheme
+        // 这里添加空值保护，根本性避免 TypeError
+        container.afterResolution("RagfairOfferHelper", (_t, result: any) => {
+            const originalMethod = result.traderOfferItemQuestLocked.bind(result);
+            result.traderOfferItemQuestLocked = function (offer: any, traderAssorts: Record<string, any>): boolean {
+                const traderId = offer?.user?.id;
+                if (!traderId) {
+                    return false;
+                }
+                const assort = traderAssorts?.[traderId];
+                if (!assort) {
+                    logger.warning(`Realism Mod: traderOfferItemQuestLocked skipped offer ${offer?._id} for missing trader ${traderId}.`);
+                    return false;
+                }
+                return originalMethod(offer, traderAssorts);
             };
         }, { frequency: "Always" });
 
