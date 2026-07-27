@@ -348,94 +348,12 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
             }, { frequency: "Always" });
         }
 
-        // 拦截 RagfairController.getOffers，在每次跳蚤搜索前同步所有 trader 的 barter_scheme
-        // 解决 SPT 核心 RagfairOfferHelper.traderOfferItemQuestLocked 中 traderAssorts 字典
-        // 查找 trader 返回 null 后未检查就直接访问 .barter_scheme 导致的 TypeError 崩溃
-        const syncAllTraderBarterSchemes = (db: DatabaseService, log: ILogger): void => {
-            const tables = db.getTables();
-            if (!tables?.traders) return;
-            for (const traderId in tables.traders) {
-                const trader = tables.traders[traderId];
-                if (!trader?.assort) {
-                    // 为完全没有 assort 的 trader 创建一个空 assort，防止 SPT 内部 getAssort 返回 undefined
-                    log.warning(`Realism Mod: Trader "${trader?.base?.nickname}" (${traderId}) has no assort, creating empty assort.`);
-                    trader.assort = {
-                        items: [],
-                        barter_scheme: {},
-                        loyal_level_items: {},
-                        nextResupply: 0
-                    };
-                    continue;
-                }
-                if (trader.assort.barter_scheme == null) {
-                    trader.assort.barter_scheme = {};
-                }
-                if (!trader.assort.items) continue;
-                const barterScheme = trader.assort.barter_scheme;
-                for (const item of trader.assort.items) {
-                    if (item.parentId === "hideout" && barterScheme[item._id] == null) {
-                        barterScheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
-                    }
-                }
-            }
-        };
-
-        // 删除引用不存在 trader 或缺少 assort 的孤儿 flea offer
-        const removeOrphanRagfairOffers = (ragfairOfferServ: RagfairOfferService, db: DatabaseService, log: ILogger): void => {
-            let offers: any[];
-            try {
-                offers = ragfairOfferServ.getOffers();
-            } catch (e) {
-                return;
-            }
-            if (!Array.isArray(offers)) return;
-
-            const tables = db.getTables();
-            if (!tables?.traders) return;
-
-            const offersCopy = [...offers];
-            let removedCount = 0;
-            for (const offer of offersCopy) {
-                const traderId = offer?.user?.id;
-                if (!traderId) continue;
-
-                const trader = tables.traders[traderId];
-                if (!trader?.assort) {
-                    const offerId = offer?._id ?? "unknown";
-                    try {
-                        ragfairOfferServ.removeOfferById(offerId);
-                        removedCount++;
-                    } catch (e) {
-                        // ignore
-                    }
-                }
-            }
-
-            if (removedCount > 0) {
-                log.warning(`Realism Mod: Interceptor removed ${removedCount} orphan ragfair offers.`);
-            }
-        };
-
-        let lastRagfairCleanupTime = 0;
-        const RAGFAIR_CLEANUP_INTERVAL_MS = 60000;
-        const ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
-
-        container.afterResolution("RagfairController", (_t, result: RagfairController) => {
-            const originalGetOffers = result.getOffers.bind(result);
-            result.getOffers = function (sessionID: string, info: ISearchRequestData): IGetOffersResult {
-                const now = Date.now();
-                if (now - lastRagfairCleanupTime > RAGFAIR_CLEANUP_INTERVAL_MS) {
-                    try {
-                        syncAllTraderBarterSchemes(databaseService, logger);
-                        removeOrphanRagfairOffers(ragfairOfferService, databaseService, logger);
-                        lastRagfairCleanupTime = now;
-                    } catch (syncErr) {
-                        // 同步失败不应阻止搜索
-                    }
-                }
-                return originalGetOffers(sessionID, info);
-            };
-        }, { frequency: "Always" });
+        // 注意：以下清理函数（syncAllTraderBarterSchemes / removeOrphanRagfairOffers）
+        // 已从 RagfairController.getOffers 阻塞拦截器中移除。
+        // 原因：每 60 秒阻塞执行全量扫描（所有商人 × 所有物品 + 获取所有 Offer 遍历）
+        // 导致跳蚤搜索时明显卡顿。
+        // 启动时的 postDBLoad 清理（ensureBarterSchemesExist + removeOrphanRagfairOffers）
+        // 以及 traderOfferItemQuestLocked 的直接空值拦截已经提供了充分防护。
 
         // 拦截 TraderAssortHelper.getAssort，确保它永远不会返回 null/undefined
         // 这是最后一道防线：即使 SPT 内部构建 traderAssorts 字典时某个 trader 数据异常，
@@ -463,6 +381,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
         // 直接拦截 RagfairOfferHelper.traderOfferItemQuestLocked，这是崩溃的最直接位置
         // SPT 原实现未检查 traderAssorts[offer.user.id] 是否为空就直接访问 .barter_scheme
         // 这里添加空值保护，根本性避免 TypeError
+        const warnedTraderIds = new Set<string>();
         container.afterResolution("RagfairOfferHelper", (_t, result: any) => {
             const originalMethod = result.traderOfferItemQuestLocked.bind(result);
             result.traderOfferItemQuestLocked = function (offer: any, traderAssorts: Record<string, any>): boolean {
@@ -472,7 +391,11 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                 }
                 const assort = traderAssorts?.[traderId];
                 if (!assort) {
-                    logger.warning(`Realism Mod: traderOfferItemQuestLocked skipped offer ${offer?._id} for missing trader ${traderId}.`);
+                    // 每个 trader ID 只警告一次，避免海量日志造成卡顿
+                    if (!warnedTraderIds.has(traderId)) {
+                        warnedTraderIds.add(traderId);
+                        logger.warning(`Realism Mod: traderOfferItemQuestLocked skipped offers for missing trader ${traderId}. (This warning will not repeat for this trader.)`);
+                    }
                     return false;
                 }
                 return originalMethod(offer, traderAssorts);
@@ -1270,7 +1193,7 @@ export class Main implements IPreSptLoadMod, IPostDBLoadMod, IPostSptLoadMod {
                         EventTracker.doExtraCultistSpawns = true;
                     }
                     else if (isCompleted) {
-                        baseGasChance = EventTracker.isHalloween ? 100 : 10;
+                        baseGasChance = 100; // 10% 概率
                     }
                 }
                 //blue flame part 1

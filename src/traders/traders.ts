@@ -1,4 +1,4 @@
-import { IDatabaseTables } from "@spt/models/spt/server/IDatabaseTables";
+﻿import { IDatabaseTables } from "@spt/models/spt/server/IDatabaseTables";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
 import { ITraderConfig } from "@spt/models/spt/config/ITraderConfig";
 import { IBarterScheme, ITrader, ITraderAssort } from "@spt/models/eft/common/tables/ITrader";
@@ -326,7 +326,7 @@ export class Traders {
     public setBaseOfferValues() {
         for (let i in this.tables.traders) {
             let trader = this.tables.traders[i];
-            if (trader?.assort?.items == null || trader.base.nickname === "БТР" || trader.base.nickname === "Arena" || trader.base.nickname.toLowerCase() === "fence") continue;
+            if (trader?.assort?.items == null || trader.base.nickname === "袘孝袪" || trader.base.nickname === "Arena" || trader.base.nickname.toLowerCase() === "fence") continue;
             if (modConfig.change_trader_ll == true) {
                 this.setLoyaltyLevels(trader);
             }
@@ -728,50 +728,60 @@ export class Traders {
         assort.loyal_level_items[assortId] = loyalLvl;
     }
 
-    // 确保所有 trader 的 assort 都包含 barter_scheme，避免 SPT 3.11.x 的 traderOfferItemQuestLocked
-    // 遍历所有 trader assort 时因缺失 barter_scheme 而崩溃（如 Fence 动态 assort）
-    // 增强版：同时检测 items 中存在但 barter_scheme 中缺失的条目，防止其他 MOD 异步修改 trader 数据后导致不一致
+    // 缁熶竴鐨勫晢浜?assort 瀹屾暣鎬т慨澶?
+    // 纭繚 assort / barter_scheme 瀛樺湪锛屽苟涓烘墍鏈夐《绾х墿鍝佽ˉ鍏ㄧ己澶辩殑 barter_scheme 鏉＄洰
+    // 杩斿洖 true 琛ㄧず杩涜浜嗕慨澶?
+    private fixTraderAssortIntegrity(trader: ITrader, traderId: string, log: ILogger, tag: string = ""): number {
+        let fixCount = 0;
+
+        // 1. 瀹屽叏缂哄け assort锛氳ˉ绌?
+        if (!trader.assort) {
+            log.warning(`Realism Mod: ${tag}Trader "${trader.base?.nickname}" (${traderId}) has no assort, creating empty assort.`);
+            trader.assort = {
+                items: [],
+                barter_scheme: {},
+                loyal_level_items: {},
+                nextResupply: 0
+            };
+            return 1;
+        }
+
+        // 2. 缂哄け barter_scheme锛氳ˉ绌哄璞?
+        if (trader.assort.barter_scheme == null) {
+            log.warning(`Realism Mod: ${tag}Trader "${trader.base?.nickname}" (${traderId}) has no barter_scheme, initializing empty object.`);
+            trader.assort.barter_scheme = {};
+            fixCount++;
+        }
+
+        // 3. 椤剁骇鐗╁搧缂哄け barter_scheme 鏉＄洰锛氳ˉ榛樿鍗㈠竷鏉＄洰
+        if (trader.assort.items) {
+            for (const item of trader.assort.items) {
+                if (item.parentId === "hideout" && trader.assort.barter_scheme[item._id] == null) {
+                    log.warning(
+                        `Realism Mod: ${tag}Item ${item._id} (_tpl: ${item._tpl}) in trader "${trader.base?.nickname}" ` +
+                        `exists in items but not in barter_scheme. Adding default barter entry to prevent SPT crash.`
+                    );
+                    trader.assort.barter_scheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
+                    fixCount++;
+                }
+            }
+        }
+
+        return fixCount;
+    }
+
+    // 纭繚鎵€鏈?trader 鐨?assort 閮藉寘鍚?barter_scheme锛岄伩鍏?SPT 3.11.x 鐨?traderOfferItemQuestLocked
+    // 鍦?mod 鍔犺浇鏃讹紙postDBLoad锛夎皟鐢?
     public ensureBarterSchemesExist(): void {
         for (const traderId in this.tables.traders) {
             const trader = this.tables.traders[traderId];
             if (!trader) continue;
-
-            // 如果 trader 完全缺失 assort，补一个空 assort，防止 SPT 内部把 undefined 写入 traderAssorts 字典
-            if (!trader.assort) {
-                this.logger.warning(`Realism Mod: Trader "${trader.base?.nickname}" (${traderId}) has no assort, creating empty assort.`);
-                trader.assort = {
-                    items: [],
-                    barter_scheme: {},
-                    loyal_level_items: {},
-                    nextResupply: 0
-                };
-                continue;
-            }
-
-            // 初始化缺失的 barter_scheme 对象
-            if (trader.assort.barter_scheme == null) {
-                this.logger.warning(`Realism Mod: Trader "${trader.base.nickname}" (${traderId}) has no barter_scheme, initializing empty object.`);
-                trader.assort.barter_scheme = {};
-            }
-
-            // 确保所有顶级物品（parentId === "hideout"）都有对应的 barter_scheme 条目
-            // 其他 MOD（如 barter_economy）可能在运行时替换 items 但不同步 barter_scheme
-            if (trader.assort.items) {
-                for (const item of trader.assort.items) {
-                    if (item.parentId === "hideout" && trader.assort.barter_scheme[item._id] == null) {
-                        this.logger.warning(
-                            `Realism Mod: Item ${item._id} (_tpl: ${item._tpl}) in trader "${trader.base.nickname}" ` +
-                            `exists in items but not in barter_scheme. Adding default barter entry to prevent SPT crash.`
-                        );
-                        trader.assort.barter_scheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
-                    }
-                }
-            }
+            this.fixTraderAssortIntegrity(trader, traderId, this.logger);
         }
     }
 
-    // 删除引用不存在 trader 或缺少 assort 的孤儿 flea offer
-    // 在 mod 加载时调用，防止 SPT 3.11.x 的 traderOfferItemQuestLocked 遍历到这些 offer 时崩溃
+    // 鍒犻櫎寮曠敤涓嶅瓨鍦?trader 鎴栫己灏?assort 鐨勫鍎?flea offer
+    // 鍦?mod 鍔犺浇鏃惰皟鐢紝闃叉 SPT 3.11.x 鐨?traderOfferItemQuestLocked 閬嶅巻鍒拌繖浜?offer 鏃跺穿婧?
     public removeOrphanRagfairOffers(): void {
         const ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
         const offers = ragfairOfferService.getOffers();
@@ -861,7 +871,7 @@ export class RandomizeTraderAssort {
         }
         for (let i in this.tables.traders) {
             let trader = this.tables.traders[i];
-            if (trader.assort?.items != null && trader.base.nickname !== "БТР" && trader.base.nickname !== "Arena" && trader.base.nickname.toLocaleLowerCase() !== "fence") {
+            if (trader.assort?.items != null && trader.base.nickname !== "袘孝袪" && trader.base.nickname !== "Arena" && trader.base.nickname.toLocaleLowerCase() !== "fence") {
                 let assortItems = trader.assort.items;
                 let ll = this.getAverageLL(pmcData, i);
                 for (let item in assortItems) {
@@ -1178,198 +1188,21 @@ export class RagCallback extends RagfairCallbacks {
     }
 
     public mySearch(url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult> {
-        // 优先使用本地 logger；如果构造函数注入失败，从容器解析
-        let log = this.logger;
-        if (!log) {
-            try {
-                log = container.resolve<ILogger>("WinstonLogger");
-            } catch {
-                // 如果连 logger 都没有，无法记录，但至少不要崩溃
-            }
-        }
-
         try {
             return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
         } catch (e) {
             const errMsg = e instanceof Error ? e.message : String(e);
-            if (errMsg.includes("barter_scheme")) {
-                log?.error(
-                    `Realism Mod: Flea search crashed due to barter_scheme issue. ` +
-                    `Running deep cleanup and retrying...`
-                );
-                log?.error(`Realism Mod: Search query: ${JSON.stringify(info)}`);
-
-                try {
-                    this.deepRepairRagfairIntegrity();
-                } catch (repairErr) {
-                    const repairMsg = repairErr instanceof Error ? repairErr.message : String(repairErr);
-                    log?.error(`Realism Mod: Deep cleanup itself failed: ${repairMsg}`);
-                }
-
-                // 输出所有可疑 offer 的诊断信息，帮助定位是哪个 trader 出问题
-                this.diagnoseOrphanOffers();
-
-                // 重试前检查 controller 是否仍然有效
-                if (!this.ragfairController) {
-                    log?.error(`Realism Mod: ragfairController became undefined after cleanup, cannot retry.`);
-                } else {
-                    try {
-                        return this.httpResponse.getBody(this.ragfairController.getOffers(sessionID, info));
-                    } catch (retryErr) {
-                        const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
-                        log?.error(`Realism Mod: Retry failed after deep cleanup: ${retryMsg}`);
-                    }
-                }
-            } else {
-                log?.error(`Realism Mod: Flea search crashed with non-barter_scheme error: ${errMsg}`);
+            let log = this.logger;
+            if (!log) {
+                try { log = container.resolve<ILogger>("WinstonLogger"); } catch {}
             }
-            // 作为最后防线，返回空结果防止游戏崩溃
+            log?.error(`Realism Mod: Flea search crashed: ${errMsg}`);
+            // barter_scheme 宕╂簝宸茬敱 mod.ts 涓殑 RagfairOfferHelper.traderOfferItemQuestLocked
+            // 鎷︽埅鍣ㄦ案涔呴槻鎶わ紝姝ゅ浠呬綔鏈€鍚庡畨鍏ㄧ綉杩斿洖绌虹粨鏋?
             return this.httpResponse.getBody({} as IGetOffersResult);
         }
     }
 
-    private deepRepairRagfairIntegrity(): void {
-        let db: DatabaseService;
-        try {
-            db = this.databaseService ?? container.resolve<DatabaseService>("DatabaseService");
-        } catch {
-            return;
-        }
-        const log = this.logger ?? container.resolve<ILogger>("WinstonLogger");
-
-        const tables = db.getTables();
-        if (!tables?.traders) {
-            log.warning(`Realism Mod: Cannot repair ragfair integrity - tables.traders unavailable.`);
-            return;
-        }
-
-        // 1. 修复所有 trader 的 barter_scheme；若某个 trader 完全缺失 assort，则补一个空 assort
-        for (const traderId in tables.traders) {
-            const trader = tables.traders[traderId];
-            if (!trader) continue;
-
-            if (!trader.assort) {
-                log.warning(`Realism Mod: [Runtime] Trader "${trader.base?.nickname}" (${traderId}) has no assort, creating empty assort.`);
-                trader.assort = {
-                    items: [],
-                    barter_scheme: {},
-                    loyal_level_items: {},
-                    nextResupply: 0
-                };
-                continue;
-            }
-
-            if (trader.assort.barter_scheme == null) {
-                trader.assort.barter_scheme = {};
-            }
-
-            if (!trader.assort.items) continue;
-            const barterScheme = trader.assort.barter_scheme;
-            for (const item of trader.assort.items) {
-                if (item.parentId === "hideout" && barterScheme[item._id] == null) {
-                    barterScheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
-                }
-            }
-        }
-
-        // 2. 删除引用不存在 trader 的孤儿 flea offer
-        let ragfairOfferService: RagfairOfferService;
-        try {
-            ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : String(e);
-            log.warning(`Realism Mod: Cannot resolve RagfairOfferService for cleanup: ${msg}`);
-            return;
-        }
-
-        const offers = ragfairOfferService.getOffers();
-        if (!Array.isArray(offers)) {
-            log.warning(`Realism Mod: ragfairOfferService.getOffers() returned non-array.`);
-            return;
-        }
-
-        // 复制数组避免在迭代时修改原数组
-        const offersCopy = [...offers];
-        let removedCount = 0;
-        for (const offer of offersCopy) {
-            const traderId = (offer as any)?.user?.id;
-            if (!traderId) continue;
-
-            const trader = tables.traders[traderId];
-            if (!trader?.assort) {
-                const offerId = (offer as any)?._id ?? "unknown";
-                const itemTpl = (offer as any)?.items?.[0]?._tpl ?? "unknown";
-                log.warning(
-                    `Realism Mod: [Runtime] Found orphan ragfair offer. ` +
-                    `OfferID: ${offerId}, TraderID: ${traderId}, ItemTpl: ${itemTpl}`
-                );
-                try {
-                    ragfairOfferService.removeOfferById(offerId);
-                    removedCount++;
-                } catch (removeErr) {
-                    const removeMsg = removeErr instanceof Error ? removeErr.message : String(removeErr);
-                    log.warning(`Realism Mod: Failed to remove orphan offer ${offerId}: ${removeMsg}`);
-                }
-            }
-        }
-
-        if (removedCount > 0) {
-            log.warning(`Realism Mod: Removed ${removedCount} orphan ragfair offers referencing missing traders.`);
-        }
-    }
-
-    // 当 SPT 崩溃时，被动扫描所有 ragfair offer，输出可疑 offer 的诊断信息
-    public diagnoseOrphanOffers(): void {
-        let db: DatabaseService;
-        try {
-            db = this.databaseService ?? container.resolve<DatabaseService>("DatabaseService");
-        } catch {
-            return;
-        }
-        const log = this.logger ?? container.resolve<ILogger>("WinstonLogger");
-
-        const tables = db.getTables();
-        if (!tables?.traders) return;
-
-        let ragfairOfferService: RagfairOfferService;
-        try {
-            ragfairOfferService = container.resolve<RagfairOfferService>("RagfairOfferService");
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : String(e);
-            log.warning(`Realism Mod: Cannot resolve RagfairOfferService for diagnosis: ${msg}`);
-            return;
-        }
-
-        const offers = ragfairOfferService.getOffers();
-        if (!Array.isArray(offers)) return;
-
-        const badOffers: any[] = [];
-        for (const offer of offers) {
-            const traderId = (offer as any)?.user?.id;
-            if (!traderId) continue;
-
-            const trader = tables.traders[traderId];
-            if (!trader?.assort) {
-                badOffers.push({
-                    offerId: (offer as any)?._id ?? "unknown",
-                    traderId: traderId,
-                    itemTpl: (offer as any)?.items?.[0]?._tpl ?? "unknown",
-                    user: (offer as any)?.user
-                });
-            }
-        }
-
-        if (badOffers.length > 0) {
-            log.error(`Realism Mod: Diagnosed ${badOffers.length} orphan ragfair offers:`);
-            for (const bad of badOffers) {
-                log.error(
-                    `  - OfferID: ${bad.offerId}, TraderID: ${bad.traderId}, ItemTpl: ${bad.itemTpl}`
-                );
-            }
-        } else {
-            log.warning(`Realism Mod: No orphan ragfair offers detected during diagnosis.`);
-        }
-    }
 }
 
 
@@ -1379,11 +1212,11 @@ export class TraderRefresh extends TraderAssortHelper {
 
     public myResetExpiredTrader(trader: ITrader) {
 
-        if (trader.base.nickname === "БТР" || trader.base.nickname === "Arena") return;
+        if (trader.base.nickname === "袘孝袪" || trader.base.nickname === "Arena") return;
 
         const traderId = trader.base._id;
-        // 只替换 items，保留 barter_scheme 和 loyal_level_items -- 与 SPT 原版行为一致
-        // 若 trader 完全缺失 assort，先创建一个空 assort，避免后续操作崩溃
+        // 鍙浛鎹?items锛屼繚鐣?barter_scheme 鍜?loyal_level_items -- 涓?SPT 鍘熺増琛屼负涓€鑷?
+        // 鑻?trader 瀹屽叏缂哄け assort锛屽厛鍒涘缓涓€涓┖ assort锛岄伩鍏嶅悗缁搷浣滃穿婧?
         if (!trader.assort) {
             this.logger.warning(`Realism Mod: Trader "${trader.base?.nickname}" (${traderId}) has no assort in myResetExpiredTrader, creating empty assort.`);
             trader.assort = {
@@ -1403,9 +1236,9 @@ export class TraderRefresh extends TraderAssortHelper {
             trader.assort.items = this.modifyTraderAssorts(trader, profilesData);
         }
 
-        // 同步 barter_scheme 与 items，防止 SPT 核心 traderOfferItemQuestLocked 崩溃
-        // 其他 MOD（barter_economy 等）可能在运行时替换 items 并修改 barter_scheme，
-        // 但不同步两者，导致某些 item 的 barter_scheme 条目缺失
+        // 鍚屾 barter_scheme 涓?items锛岄槻姝?SPT 鏍稿績 traderOfferItemQuestLocked 宕╂簝
+        // 鍏朵粬 MOD锛坆arter_economy 绛夛級鍙兘鍦ㄨ繍琛屾椂鏇挎崲 items 骞朵慨鏀?barter_scheme锛?
+        // 浣嗕笉鍚屾涓よ€咃紝瀵艰嚧鏌愪簺 item 鐨?barter_scheme 鏉＄洰缂哄け
         this.syncBarterSchemeWithItems(trader);
 
         trader.base.nextResupply = this.traderHelper.getNextUpdateTimestamp(trader.base._id);
@@ -1418,11 +1251,9 @@ export class TraderRefresh extends TraderAssortHelper {
     }
 
     private syncBarterSchemeWithItems(trader: ITrader): void {
-        if (!trader?.assort?.barter_scheme || !trader?.assort?.items) return;
-
+        // 闈欓粯淇锛氫粎琛ュ叏缂哄け鐨?barter_scheme 鏉＄洰锛屼笉杈撳嚭鏃ュ織锛堟璺緞楂橀瑙﹀彂锛?
+        if (!trader?.assort?.items || !trader?.assort?.barter_scheme) return;
         const barterScheme = trader.assort.barter_scheme;
-
-        // 确保所有顶级物品（parentId === "hideout"）都有 barter_scheme 条目
         for (const item of trader.assort.items) {
             if (item.parentId === "hideout" && barterScheme[item._id] == null) {
                 barterScheme[item._id] = [[{ count: 1, _tpl: "5449016a4bdc2d6f028b456f" }]];
@@ -1435,13 +1266,13 @@ export class TraderRefresh extends TraderAssortHelper {
         const randomTraderAss = new RandomizeTraderAssort();
         const utils = Utils.getInstance();
 
-        // 防御性检查：确保 assort 存在
+        // 闃插尽鎬ф鏌ワ細纭繚 assort 瀛樺湪
         if (!trader.assort) {
             this.logger.warning(`Realism Mod: Trader "${trader.base?.nickname}" (${trader.base._id}) has no assort in modifyTraderAssorts, returning empty items.`);
             return [];
         }
 
-        // 防御性检查：确保 barter_scheme 存在
+        // 闃插尽鎬ф鏌ワ細纭繚 barter_scheme 瀛樺湪
         if (!trader.assort.barter_scheme) {
             trader.assort.barter_scheme = {};
         }
